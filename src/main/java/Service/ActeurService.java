@@ -1,4 +1,4 @@
-package com.example.demo.service;
+package Service;
 
 import Entities.Business.Personne.Acteur;
 import Persistence.Repository.IActeurRepository;
@@ -19,99 +19,104 @@ public class ActeurService {
         this.acteurRepository = acteurRepository;
     }
 
-    // Find by Name and First Name
-    public List<Acteur> findByNameAndFirstName(String name, String firstName) {
-        return acteurRepository.findByNomAndPrenom(name, firstName);
+    // Get by Full Name (Last Name and First Name)
+    public List<Acteur> getByFullName(String lastName, String firstName) {
+        return acteurRepository.findByNomAndPrenom(lastName, firstName);
     }
 
-    // Find by Name
-    public List<Acteur> findByName(String name) {
-        return acteurRepository.findByNom(name);
+    // Get by Last Name
+    public List<Acteur> getByLastName(String lastName) {
+        return acteurRepository.findByNom(lastName);
     }
 
-    // Find by First Name
-    public List<Acteur> findByFirstName(String firstName) {
+    // Get by First Name
+    public List<Acteur> getByFirstName(String firstName) {
         return acteurRepository.findByPrenom(firstName);
     }
 
-    // Find by IMDb ID
-    public Optional<Acteur> findByImdbId(Long imdbId) {
+    // Get by IMDb ID
+    public Optional<Acteur> getByImdbId(Long imdbId) {
         return acteurRepository.findByIdImdb(imdbId);
     }
 
-    // Find All by Role Name
-    public List<Acteur> findAllByRoleName(String roleName) {
+    // Get All by Role Name
+    public List<Acteur> getByRoleName(String roleName) {
         return acteurRepository.findAllByRoleName(roleName);
     }
 
-    // Find by Partial Match of Name (Case-insensitive)
-    public List<Acteur> findByNameContainingIgnoreCase(String partialName) {
-        return acteurRepository.findByNomContainingIgnoreCase(partialName);
-    }
-
-    // Find by Height greater than a specified value
-    public List<Acteur> findByHeightGreaterThan(double height) {
-        return acteurRepository.findByTailleGreaterThan(height);
-    }
-
-    // Find by Height smaller than a specified value
-    public List<Acteur> findByHeightLessThan(double height) {
-        return acteurRepository.findByTailleLessThan(height);
-    }
-
-    // Find by Date of Birth after a specific date
-    public List<Acteur> findByBirthDateAfter(LocalDateTime date) {
-        return acteurRepository.findByDateNaissanceAfter(date);
-    }
-
-    // Find by Date of Birth before a specific date
-    public List<Acteur> findByBirthDateBefore(LocalDateTime date) {
-        return acteurRepository.findByDateNaissanceBefore(date);
-    }
-
-    // Find by Date of Birth within a specific range
-    public List<Acteur> findByBirthDateBetween(LocalDateTime startDate, LocalDateTime endDate) {
-        return acteurRepository.findByDateNaissanceBetween(startDate, endDate);
-    }
-
-    // Find by CreatedDate before a specific date
-    public List<Acteur> findByCreatedDateBefore(LocalDateTime date) {
-        return acteurRepository.findByCreatedDateBefore(date);
-    }
-
-    // Find by CreatedDate after a specific date
-    public List<Acteur> findByCreatedDateAfter(LocalDateTime date) {
-        return acteurRepository.findByCreatedDateAfter(date);
-    }
-
-    // Find by CreatedDate within a specific range
-    public List<Acteur> findByCreatedDateBetween(LocalDateTime startDate, LocalDateTime endDate) {
-        return acteurRepository.findByCreatedDateBetween(startDate, endDate);
-    }
-
-    // Find All Acteurs Ordered by Name (Alphabetical Order)
-    public List<Acteur> findAllByOrderByNameAsc() {
-        return acteurRepository.findAllByOrderByNomAsc();
-    }
-
-    // Find All Acteurs Ordered by Name (Reverse Alphabetical Order)
-    public List<Acteur> findAllByOrderByNameDesc() {
-        return acteurRepository.findAllByOrderByNomDesc();
-    }
-
-    // Count Acteurs by Role Name
+    // Count by Role Name
     public long countByRoleName(String roleName) {
         return acteurRepository.countByRoleName(roleName);
     }
 
-    // Find by Name or First Name (Case-insensitive search for either field)
-    public List<Acteur> findByNameIgnoreCaseOrFirstNameIgnoreCase(String name, String firstName) {
-        return acteurRepository.findByNomIgnoreCaseOrPrenomIgnoreCase(name, firstName);
+    // Search by Partial Last Name
+    public List<Acteur> searchByLastName(String partialLastName) {
+        return acteurRepository.findByNomContainingIgnoreCase(partialLastName);
     }
 
-    // Find Top 3 Acteurs by Height (e.g., tallest actors)
-    public List<Acteur> findTop3ByOrderByHeightDesc() {
+    // Get Actors Taller Than a Specific Height
+    public List<Acteur> getTallerThan(double height) {
+        return acteurRepository.findByTailleGreaterThan(height);
+    }
+
+    // Get Actors Shorter Than a Specific Height
+    public List<Acteur> getShorterThan(double height) {
+        return acteurRepository.findByTailleLessThan(height);
+    }
+
+    // Get Actors Born After a Specific Date
+    public List<Acteur> getBornAfter(LocalDateTime date) {
+        return acteurRepository.findByDateNaissanceAfter(date);
+    }
+
+    // Get Actors Born Before a Specific Date
+    public List<Acteur> getBornBefore(LocalDateTime date) {
+        return acteurRepository.findByDateNaissanceBefore(date);
+    }
+
+    // Get Actors Born Between Specific Dates
+    public List<Acteur> getBornBetween(LocalDateTime startDate, LocalDateTime endDate) {
+        return acteurRepository.findByDateNaissanceBetween(startDate, endDate);
+    }
+
+    // Get Actors Created Before a Specific Date
+    public List<Acteur> getCreatedBefore(LocalDateTime date) {
+        return acteurRepository.findByCreatedDateBefore(date);
+    }
+
+    // Get Actors Created After a Specific Date
+    public List<Acteur> getCreatedAfter(LocalDateTime date) {
+        return acteurRepository.findByCreatedDateAfter(date);
+    }
+
+    // Get Actors Created Between Specific Dates
+    public List<Acteur> getCreatedBetween(LocalDateTime startDate, LocalDateTime endDate) {
+        return acteurRepository.findByCreatedDateBetween(startDate, endDate);
+    }
+
+    // Get All Actors Ordered by Last Name Ascending
+    public List<Acteur> getAllOrderedByLastNameAsc() {
+        return acteurRepository.findAllByOrderByNomAsc();
+    }
+
+    // Get All Actors Ordered by Last Name Descending
+    public List<Acteur> getAllOrderedByLastNameDesc() {
+        return acteurRepository.findAllByOrderByNomDesc();
+    }
+
+    // Search by First or Last Name (Case-insensitive)
+    public List<Acteur> searchByFirstOrLastName(String lastName, String firstName) {
+        return acteurRepository.findByNomIgnoreCaseOrPrenomIgnoreCase(lastName, firstName);
+    }
+
+    // Get Top 3 Tallest Actors
+    public List<Acteur> getTop3Tallest() {
         return acteurRepository.findTop3ByOrderByTailleDesc();
+    }
+
+    // Get Actors by Height Range
+    public List<Acteur> getByHeightRange(double minHeight, double maxHeight) {
+        return acteurRepository.findActeurByTailleBetween(minHeight, maxHeight);
     }
 
     /* todo after we have the remaining classes we can add:
