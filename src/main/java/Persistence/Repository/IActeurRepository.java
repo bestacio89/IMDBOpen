@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface IActeurRepository extends IGenericRepository<Acteur, Long> {
 
-
     // Find by Nom and Prenom
     List<Acteur> findByNomAndPrenom(String nom, String prenom);
 
@@ -26,8 +25,12 @@ public interface IActeurRepository extends IGenericRepository<Acteur, Long> {
     Optional<Acteur> findByIdImdb(Long idImdb);
 
     // Find All by Role Name
-    @Query("SELECT a FROM Acteur a JOIN a.roles r WHERE r.nom = :roleNom")
-    List<Acteur> findAllByRoleName(@Param("roleNom") String roleNom);
+    @Query("SELECT a FROM Acteur a JOIN a.roles r WHERE r.roleName = :roleName")
+    List<Acteur> findAllByRoleName(@Param("roleName") String roleName);
+
+    // Count Acteurs by Role Name
+    @Query("SELECT COUNT(a) FROM Acteur a JOIN a.roles r WHERE r.roleName = :roleName")
+    long countByRoleName(@Param("roleName") String roleName);
 
     // Find by Partial Match of Nom (Case-insensitive)
     List<Acteur> findByNomContainingIgnoreCase(String partialNom);
@@ -62,14 +65,19 @@ public interface IActeurRepository extends IGenericRepository<Acteur, Long> {
     // Find All Acteurs Ordered by Nom (Reverse Alphabetical Order)
     List<Acteur> findAllByOrderByNomDesc();
 
-    // Count Acteurs by Role Name
-    @Query("SELECT COUNT(a) FROM Acteur a JOIN a.roles r WHERE r.nom = :roleNom")
-    long countByRoleName(@Param("roleNom") String roleNom);
-
     // Find by Nom or Prenom (Case-insensitive search for either field)
     List<Acteur> findByNomIgnoreCaseOrPrenomIgnoreCase(String nom, String prenom);
 
     // Find Top 3 Acteurs by Taille (e.g., tallest actors)
     List<Acteur> findTop3ByOrderByTailleDesc();
+
+    // Find actors by age range
+    List<Acteur> findActeurByTailleBetween(double minHeight, double maxHeight);
+
+    // Find actors higher then
+    List<Acteur> findActeurByTailleGreaterThan(double minHeight);
+
+    // Find actors shorter then
+    List<Acteur> findActeurByTailleLessThan(double minHeight);
 
 }
