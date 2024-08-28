@@ -1,5 +1,6 @@
 package Entities.Business.Personne;
 
+import Entities.Business.Role.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,7 +34,7 @@ public class Acteur extends Personne {
     private double taille;
 
     // Relationship with Role
-    @OneToMany(mappedBy = "acteur", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Role> roles = new ArrayList<>();
 
     // Creation and update timestamps
@@ -92,5 +93,48 @@ public class Acteur extends Personne {
     @Override
     public void setDeleted(boolean deleted) {
         // Modify as needed
+    }
+
+    // Override des méthodes de la classe mère
+    @Override
+    public String getNom() {
+        return super.getNom();
+    }
+
+    @Override
+    public void setNom(String nom) {
+        super.setNom(nom);
+    }
+
+    @Override
+    public String getPrenom() {
+        return super.getPrenom();
+    }
+
+    @Override
+    public void setPrenom(String prenom) {
+        super.setPrenom(prenom);
+    }
+
+    @Override
+    public LocalDateTime getDateNaissance() {
+        return super.getDateNaissance();
+    }
+
+    @Override
+    public void setDateNaissance(LocalDateTime dateNaissance) {
+        super.setDateNaissance(dateNaissance);
+    }
+
+    @Override
+    public String toString() {
+        return "Acteur{" +
+                "idActeur=" + idActeur +
+                ", idImdb=" + idImdb +
+                ", taille=" + taille +
+                ", roles=" + roles +
+                ", createdDate=" + createdDate +
+                ", updatedDate=" + updatedDate +
+                '}';
     }
 }
