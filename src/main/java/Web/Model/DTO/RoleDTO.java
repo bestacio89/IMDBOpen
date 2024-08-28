@@ -1,77 +1,41 @@
 package Web.Model.DTO;
 
-import Entities.Business.Film.Film;
-import Entities.Business.Personne.Personne;
 import Entities.Business.Role.Role;
+import lombok.Data;
 
+@Data
 public class RoleDTO {
-
     private Long id;
     private String roleName;
-    private Film film;
-    private Personne actor;
+    private FilmDTO film;
+    private ActeurDTO actor;
 
-    // Default constructor
-    public RoleDTO() {}
-
-    // Parameterized constructor
-    public RoleDTO(Long id, String roleName, Film film, Personne actor) {
-        this.id = id;
-        this.roleName = roleName;
-        this.film = film;
-        this.actor = actor;
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-
-    public Film getFilm() {
-        return film;
-    }
-
-    public void setFilm(Film film) {
-        this.film = film;
-    }
-
-    public Personne getActor() {
-        return actor;
-    }
-
-    public void setActor(Personne actor) {
-        this.actor = actor;
-    }
-
-    // Static method to convert a Role entity to a RoleDTO
-    public static RoleDTO fromEntity(Role role) {
-        return new RoleDTO(
-                role.getId(),
-                role.getRoleName(),
-                role.getFilm(),
-                role.getActor()
-        );
-    }
-
-    // Convert RoleDTO to Role entity
+    /**
+     * Convert RoleDTO to Role entity.
+     *
+     * @return a Role entity
+     */
     public Role toEntity() {
         Role role = new Role();
         role.setId(this.id);
         role.setRoleName(this.roleName);
-        role.setFilm(this.film);
-        role.setActor(this.actor);
+        role.setFilm(this.film != null ? this.film.toEntity() : null);
+        role.setActor(this.actor != null ? this.actor.toEntity() : null);
         return role;
+    }
+
+    /**
+     * Convert Role entity to RoleDTO.
+     *
+     * @param role the Role entity to convert
+     * @return a RoleDTO
+     */
+    public static RoleDTO fromEntity(Role role) {
+        RoleDTO dto = new RoleDTO();
+        dto.setId(role.getId());
+        dto.setRoleName(role.getRoleName());
+        dto.setFilm(FilmDTO.fromEntity(role.getFilm()));
+        dto.setActor(ActeurDTO.fromEntity(role.getActor()));
+        return dto;
     }
 }

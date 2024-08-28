@@ -1,6 +1,8 @@
 package Service;
 
 import Entities.Business.Role.Role;
+import Entities.Business.Film.Film;
+import Entities.Business.Personne.Acteur; // Assurez-vous que Acteur est importé correctement
 import Exceptions.EntityNotFoundException;
 import Exceptions.InvalidDataException;
 import Persistence.Repository.IRoleRepository;
@@ -78,6 +80,12 @@ public class RoleService {
             throw new InvalidDataException("Role data cannot be null");
         }
         Role role = roleDTO.toEntity();
+        Film film = roleDTO.getFilm() != null ? roleDTO.getFilm().toEntity() : null;
+        Acteur actor = roleDTO.getActor() != null ? roleDTO.getActor().toEntity() : null;
+
+        role.setFilm(film);
+        role.setActor(actor);
+
         Role savedRole = roleRepository.save(role);
         return RoleDTO.fromEntity(savedRole);
     }
@@ -97,8 +105,8 @@ public class RoleService {
                 new EntityNotFoundException("Role not found with ID: " + id));
 
         existingRole.setRoleName(roleDTO.getRoleName());
-        existingRole.setFilm(roleDTO.getFilm());  // Assuming the DTO contains a Film object or FilmDTO
-        existingRole.setActor(roleDTO.getActor());  // Assuming the DTO contains an Actor object or ActorDTO
+        existingRole.setFilm(roleDTO.getFilm() != null ? roleDTO.getFilm().toEntity() : existingRole.getFilm());
+        existingRole.setActor(roleDTO.getActor() != null ? roleDTO.getActor().toEntity() : existingRole.getActor());
 
         Role updatedRole = roleRepository.save(existingRole);
         return RoleDTO.fromEntity(updatedRole);
