@@ -1,5 +1,5 @@
 # Build stage with Java 21 image
-FROM maven:3.8.1-openjdk-21 AS builder
+FROM maven:latest AS builder
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
@@ -8,8 +8,8 @@ WORKDIR /usr/src/app
 COPY pom.xml .
 COPY src ./src
 
-# Package the application, skipping tests to speed up the build
-RUN mvn clean package -DskipTests
+# Package the application, skipping tests and reducing log output
+RUN mvn clean package --no-transfer-progress -DskipTests
 
 # Base image for running the application (using Java 21)
 FROM eclipse-temurin:21-jre
