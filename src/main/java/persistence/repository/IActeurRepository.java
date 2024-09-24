@@ -24,5 +24,5 @@ public interface IActeurRepository extends JpaRepository<Acteur, Long> {
 
     Optional<Acteur> findByPersonne(Personne personne);
 
-    List<Acteur> findAllWithFilters(String identite, String dateNaissance, PageRequest of);
+    //List<Acteur> findAllWithFilters(String identite, String dateNaissance, PageRequest of);
 }

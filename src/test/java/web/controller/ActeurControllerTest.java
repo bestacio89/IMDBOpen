@@ -121,17 +121,7 @@ public class ActeurControllerTest {
         verify(acteurService, times(1)).deleteActeur(1L);
     }
 
-    @Test
-    public void testSearchActeurs_Success() {
-        List<ActeurDTO> acteurs = Arrays.asList(acteurDTO);
-        when(acteurService.findActeursWithFiltersAndSorting(anyString(), anyString(), anyString())).thenReturn(acteurs);
 
-        ResponseEntity<ApiResponse<List<ActeurDTO>>> response = acteurController.searchActeurs("Jean", "1980-01-01", "name");
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().getData().size());
-        verify(acteurService, times(1)).findActeursWithFiltersAndSorting(anyString(), anyString(), anyString());
-    }
 
 
 }

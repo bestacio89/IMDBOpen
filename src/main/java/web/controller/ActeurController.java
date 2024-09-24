@@ -77,7 +77,7 @@ public class ActeurController {
 
 
     // Optional: If you have a search method with filters (for example, by name, date, etc.)
-    @GetMapping("/search")
+  /*  @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<ActeurDTO>>> searchActeurs(
             @RequestParam(required = false) String identite,
             @RequestParam(required = false) String dateNaissance,
@@ -94,5 +94,5 @@ public class ActeurController {
             logger.error("An error occurred while searching for acteurs: {}", ex.getMessage(), ex);
             throw new RuntimeException("An error occurred while searching for acteurs", ex);  // Handled by the Global Exception Handler
         }
-    }
+    }*/
 }
