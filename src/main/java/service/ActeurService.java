@@ -112,7 +112,7 @@ public class ActeurService {
     }
 
     // Method to search and sort acteurs
-    public List<ActeurDTO> findActeursWithFiltersAndSorting(String identite, String dateNaissance, String sortBy) {
+  /*  public List<ActeurDTO> findActeursWithFiltersAndSorting(String identite, String dateNaissance, String sortBy) {
         // Build sort object
         Sort sort = Sort.by(Sort.Direction.ASC, sortBy != null ? sortBy : "id");
 
@@ -122,5 +122,5 @@ public class ActeurService {
         return acteurs.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-    }
+    }*/
 }
