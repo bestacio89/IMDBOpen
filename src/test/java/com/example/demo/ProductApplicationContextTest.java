@@ -3,6 +3,9 @@ package com.example.demo;
 import com.example.imdbopen.ProductApplication;
 import com.example.imdbopen.actor.application.port.out.ActorStore;
 import com.example.imdbopen.country.application.port.out.CountryStore;
+import com.example.imdbopen.casting.application.port.out.RoleStore;
+import com.example.imdbopen.casting.application.port.out.FilmLookup;
+import com.example.imdbopen.casting.application.port.out.ActorLookup;
 import com.example.imdbopen.director.application.port.out.DirectorStore;
 import com.example.imdbopen.film.domain.Film;
 import com.example.imdbopen.person.application.port.out.PersonStore;
@@ -36,6 +39,13 @@ class ProductApplicationContextTest {
     @Autowired
     private DirectorStore directorStore;
 
+    @Autowired
+    private RoleStore roleStore;
+    @Autowired
+    private FilmLookup filmLookup;
+    @Autowired
+    private ActorLookup actorLookup;
+
     @Test
     void discoversFilmEntityRepositoryControllerAndModularStores() {
         assertNotNull(filmRepository);
@@ -43,6 +53,9 @@ class ProductApplicationContextTest {
         assertNotNull(actorStore);
         assertNotNull(personStore);
         assertNotNull(directorStore);
+        assertNotNull(roleStore);
+        assertNotNull(filmLookup);
+        assertNotNull(actorLookup);
         assertNotNull(applicationContext.getBean(FilmController.class));
         assertTrue(entityManagerFactory.getMetamodel().getEntities().stream()
                 .anyMatch(entityType -> entityType.getJavaType().equals(Film.class)));

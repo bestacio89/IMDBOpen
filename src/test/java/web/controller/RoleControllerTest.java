@@ -1,6 +1,6 @@
 package web.controller;
 
-import service.RoleService;
+import com.example.imdbopen.casting.application.RoleService;
 import web.model.dto.RoleDTO;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
