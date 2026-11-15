@@ -1,46 +1,63 @@
-name: Template Test Pipeline
+name: Java CI
 
 on:
-  # Trigger on pull_request on Develop branch
+  push:
   pull_request:
     branches:
-      ['develop']
-    paths-ignore:
-      ['docs/**']
+      - develop
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  build:
+    name: Build and test (Java 21)
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Check out source
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@d0e6e4dbf773b98efde945f446d2099b2c0d8fd2 # v6
         with:
-          distribution: 'temurin' # Use 'zulu' or 'adopt' if you prefer another distribution
+          distribution: temurin
           java-version: '21'
+          cache: maven
 
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
+      - name: Verify Maven Wrapper
+        run: ./mvnw --version
+
+      - name: Build and test
+        run: ./mvnw --batch-mode --no-transfer-progress clean verify
+
+      - name: Upload test and quality reports
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          name: maven-verification-reports
+          path: |
+            **/target/surefire-reports/**
+            **/target/failsafe-reports/**
+            **/target/checkstyle-result.xml
+            **/target/site/jacoco/**
+          if-no-files-found: ignore
+          retention-days: 14
 
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
-
-      - name: Run tests with Maven
-        run: mvn test
-
-      # Uncomment the section below to enable automatic PR creation after successful tests
-      # - name: Create Pull Request to Main
-      #   if: success()
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     gh auth login --with-token <<< "${GITHUB_TOKEN}"
-      #     gh pr create --base main --head develop --title "[Pull Request] Automated Testing Pull Request" --body "Automated PR created after successful tests. Further description added from previous commits."
+      - name: Upload application artifact
+        if: success()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: imdbopen-application
+          path: target/*.jar
+          if-no-files-found: error
+          retention-days: 14
