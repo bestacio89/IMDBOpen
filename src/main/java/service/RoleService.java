@@ -1,7 +1,7 @@
 package service;
 
+import com.example.imdbopen.actor.domain.Acteur;
 import com.example.imdbopen.film.domain.Film;
-import entities.business.personne.Acteur;
 import entities.business.role.Role;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
