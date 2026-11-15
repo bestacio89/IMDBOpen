@@ -35,14 +35,6 @@ jobs:
       - name: Verify application
         run: ./mvnw --batch-mode --no-transfer-progress clean verify
 
-      - name: Build Docker images
-        env:
-          MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
-          MARIADB_DATABASE: ${{ vars.MARIADB_DATABASE || 'ImdbOpenDB' }}
-          MARIADB_USER: ${{ secrets.MARIADB_USER }}
-          MARIADB_PASSWORD: ${{ secrets.MARIADB_PASSWORD }}
-        run: docker compose --file Docker/docker-compose.yml build
-
       - name: Log in to Docker Hub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -52,6 +44,14 @@ jobs:
           : "${DOCKERHUB_USERNAME:?GitHub Production secret DOCKERHUB_USERNAME is required}"
           : "${DOCKERHUB_TOKEN:?GitHub Production secret DOCKERHUB_TOKEN is required}"
           printf '%s' "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+
+      - name: Build Docker images
+        env:
+          MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
+          MARIADB_DATABASE: ${{ vars.MARIADB_DATABASE || 'ImdbOpenDB' }}
+          MARIADB_USER: ${{ secrets.MARIADB_USER }}
+          MARIADB_PASSWORD: ${{ secrets.MARIADB_PASSWORD }}
+        run: docker compose --file Docker/docker-compose.yml build
 
       - name: Push Docker images
         env:
