@@ -29,9 +29,4 @@ public class Realisateur {
         if (personne == null) personne = new Personne();
         personne.setNconst(value);
     }
-
-    public java.time.LocalDateTime getCreatedDate() { return null; }
-    public void setCreatedDate(java.time.LocalDateTime ignored) { }
-    public java.time.LocalDateTime getUpdatedDate() { return null; }
-    public void setUpdatedDate(java.time.LocalDateTime ignored) { }
 }

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Film implements Entities.generic.IEntity<Long> {
+public class Film {
     private static final Pattern RELEASE_YEAR_PATTERN =
             Pattern.compile("(?<!\\d)(\\d{4})(?:\\D+(\\d{4}))?(?!\\d)");
 
@@ -115,10 +115,4 @@ public class Film implements Entities.generic.IEntity<Long> {
         return genresl.stream().map(Genre::getName).collect(Collectors.joining(", "));
     }
 
-    @Override public java.time.LocalDateTime getCreatedDate() { return null; }
-    @Override public void setCreatedDate(java.time.LocalDateTime value) { }
-    @Override public java.time.LocalDateTime getUpdatedDate() { return null; }
-    @Override public void setUpdatedDate(java.time.LocalDateTime value) { }
-    @Override public boolean isDeleted() { return false; }
-    @Override public void setDeleted(boolean value) { }
 }

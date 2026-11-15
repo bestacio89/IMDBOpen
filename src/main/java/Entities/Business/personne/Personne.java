@@ -6,14 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "person", uniqueConstraints = @UniqueConstraint(name = "uk_person_nconst", columnNames = "nconst"))
 @Getter
 @Setter
 @NoArgsConstructor
-public class Personne implements Entities.generic.IEntity<Long> {
+public class Personne {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -57,10 +56,4 @@ public class Personne implements Entities.generic.IEntity<Long> {
     public String getUrl() { return profileUrl; }
     public void setUrl(String value) { this.profileUrl = value; }
 
-    @Override public LocalDateTime getCreatedDate() { return null; }
-    @Override public void setCreatedDate(LocalDateTime value) { }
-    @Override public LocalDateTime getUpdatedDate() { return null; }
-    @Override public void setUpdatedDate(LocalDateTime value) { }
-    @Override public boolean isDeleted() { return false; }
-    @Override public void setDeleted(boolean value) { }
 }
