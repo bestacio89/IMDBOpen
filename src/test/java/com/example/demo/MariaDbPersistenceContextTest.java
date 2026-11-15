@@ -8,7 +8,7 @@ import com.example.imdbopen.film.domain.FilmDirector;
 import com.example.imdbopen.film.domain.FilmDirectorId;
 import com.example.imdbopen.genre.domain.Genre;
 import com.example.imdbopen.person.domain.Personne;
-import entities.business.role.Role;
+import com.example.imdbopen.casting.domain.Role;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
