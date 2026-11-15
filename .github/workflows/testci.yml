@@ -1,19 +1,12 @@
 name: Java CI
 
 on:
-  push:
-    branches:
-      - develop
-      - main
-    paths-ignore:
-      - docs/**
   pull_request:
     branches:
       - develop
       - main
     paths-ignore:
       - docs/**
-  workflow_dispatch:
 
 permissions:
   contents: read
