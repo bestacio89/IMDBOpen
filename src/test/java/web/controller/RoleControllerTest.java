@@ -4,7 +4,7 @@ import service.RoleService;
 import web.model.dto.RoleDTO;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -34,13 +34,13 @@ class RoleControllerTest {
     @InjectMocks
     private RoleController roleController;
 
-    private ObjectMapper objectMapper;
+    private JsonMapper objectMapper;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(roleController).build();
-        objectMapper = new ObjectMapper();
+        objectMapper = JsonMapper.builder().build();
     }
 
     @Test
