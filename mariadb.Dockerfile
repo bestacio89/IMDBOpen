@@ -1,4 +1,4 @@
-FROM mariadb:10.8
+FROM mariadb:11.4
 
 EXPOSE 3306
 
