@@ -106,7 +106,7 @@ class FilmServiceTest {
         dto.setNom("New Film");
         CountryReference country = new CountryReference();
         country.setName("France");
-        dto.setPays(country);
+        dto.setPays(CountryReference.fromEntity(country));
         dto.setGenres("Drama");
 
         filmService.createFilm(dto);
