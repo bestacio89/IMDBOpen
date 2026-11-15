@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -94,7 +95,10 @@ public class FilmService {
     @Transactional
     public FilmDTO createFilm(FilmDTO filmDTO) {
         if (filmDTO == null) throw new InvalidDataException("Film data cannot be null");
-        return FilmDTO.fromEntity(filmRepository.save(filmDTO.toEntity()));
+        Film film = filmDTO.toEntity();
+        film.setPays(resolveCountry(filmDTO.getPays()));
+        synchronizeGenres(film, filmDTO.getGenres());
+        return FilmDTO.fromEntity(filmRepository.save(film));
     }
 
     @Transactional
@@ -105,14 +109,39 @@ public class FilmService {
         existing.setNom(filmDTO.getNom());
         existing.setAnnee(filmDTO.getAnnee());
         existing.setRating(filmDTO.getRating());
+        existing.setUrl(filmDTO.getUrl());
+        existing.setLieuTour(filmDTO.getLieuTour());
+        existing.setLangue(filmDTO.getLangue());
+        existing.setResume(filmDTO.getResume());
+        existing.setPays(resolveCountry(filmDTO.getPays()));
+        synchronizeGenres(existing, filmDTO.getGenres());
         return FilmDTO.fromEntity(filmRepository.save(existing));
     }
 
-    @Transactional
-    public void deleteFilm(Long id) {
-        Film film = filmRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Film not found with ID: " + id));
-        filmRepository.delete(film);
+    private Pays resolveCountry(Pays requested) {
+        if (requested == null) return null;
+        if (requested.getId() != null) {
+            return paysRepository.findById(requested.getId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Country not found with ID: " + requested.getId()));
+        }
+        if (StringUtils.hasText(requested.getName())) return findOrCreatePays(requested.getName());
+        throw new InvalidDataException("Country must have an ID or a name");
+    }
+
+    private void synchronizeGenres(Film film, String genreNames) {
+        if (!StringUtils.hasText(genreNames)) {
+            film.setGenresl(Set.of());
+            film.setGenres(null);
+            return;
+        }
+        Set<Genre> genres = Arrays.stream(genreNames.split(","))
+                .map(String::trim)
+                .filter(StringUtils::hasText)
+                .map(this::findOrCreateGenre)
+                .collect(Collectors.toSet());
+        film.setGenresl(genres);
+        film.setGenres(null);
     }
 
     @Transactional
