@@ -26,3 +26,4 @@
 
 # Local and production secrets
 Docker/.env.production
+Docker/MariaDBData/
