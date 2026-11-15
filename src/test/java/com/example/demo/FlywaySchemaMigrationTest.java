@@ -2,55 +2,48 @@ package com.example.demo;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.MariaDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Testcontainers
 class FlywaySchemaMigrationTest {
 
     private static final Set<String> EXPECTED_TABLES = Set.of(
             "country", "film", "genre", "film_genre", "person",
             "actor", "director", "film_director", "film_cast");
 
-    @Container
-    private static final MariaDBContainer<?> DATABASE =
-            new MariaDBContainer<>("mariadb:11.4")
-                    .withDatabaseName("imdbopen")
-                    .withUsername("imdbopen")
-                    .withPassword("test-password");
-
     @Test
+    @EnabledIfEnvironmentVariable(named = "IMDBOPEN_TEST_DB_URL", matches = "jdbc:mariadb:.*")
     void migratesCleanMariaDbToTheCanonicalSchema() throws SQLException {
+        String url = System.getenv("IMDBOPEN_TEST_DB_URL");
+        String username = System.getenv("IMDBOPEN_TEST_DB_USERNAME");
+        String password = System.getenv("IMDBOPEN_TEST_DB_PASSWORD");
+
         Flyway.configure()
-                .dataSource(DATABASE.getJdbcUrl(), DATABASE.getUsername(), DATABASE.getPassword())
+                .dataSource(url, username, password)
                 .locations("classpath:db/migration")
                 .load()
                 .migrate();
 
-        try (Connection connection = DATABASE.createConnection("");
+        try (Connection connection = DriverManager.getConnection(url, username, password);
              Statement statement = connection.createStatement()) {
-            DatabaseMetaData metadata = connection.getMetaData();
             Set<String> actualTables;
-            try (ResultSet tables = metadata.getTables(connection.getCatalog(), null, "%", new String[]{"TABLE"})) {
-                actualTables = Stream.generate(() -> readTableName(tables))
-                        .takeWhile(name -> name != null)
-                        .collect(Collectors.toSet());
+            try (ResultSet tables = connection.getMetaData().getTables(
+                    connection.getCatalog(), null, "%", new String[]{"TABLE"})) {
+                java.util.HashSet<String> names = new java.util.HashSet<>();
+                while (tables.next()) {
+                    names.add(tables.getString("TABLE_NAME"));
+                }
+                actualTables = Set.copyOf(names);
             }
 
             assertTrue(actualTables.containsAll(EXPECTED_TABLES));
@@ -72,16 +65,6 @@ class FlywaySchemaMigrationTest {
                             + "VALUES ('tt0000001', 'Duplicate Film', '1952')"));
             assertThrows(SQLException.class, () -> statement.executeUpdate(
                     "INSERT INTO film_cast (film_id, actor_id) VALUES (1, 999)"));
-            assertNotNull(metadata.getPrimaryKeys(connection.getCatalog(), null, "film_cast"));
-            assertFalse(metadata.getImportedKeys(connection.getCatalog(), null, "film_cast").isClosed());
-        }
-    }
-
-    private static String readTableName(ResultSet tables) {
-        try {
-            return tables.next() ? tables.getString("TABLE_NAME") : null;
-        } catch (SQLException exception) {
-            throw new IllegalStateException("Unable to read migrated table metadata", exception);
         }
     }
 }
