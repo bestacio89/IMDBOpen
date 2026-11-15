@@ -2,7 +2,7 @@ package service;
 
 import com.example.imdbopen.film.domain.Film;
 import entities.business.personne.Acteur;
-import entities.business.personne.Personne;
+import com.example.imdbopen.person.domain.Personne;
 import entities.business.role.Role;
 import persistence.repository.IActeurRepository;
 import persistence.repository.IFilmRepository;

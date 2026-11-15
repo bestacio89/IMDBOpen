@@ -1,7 +1,7 @@
 package service;
 
 import entities.business.personne.Acteur;
-import entities.business.personne.Personne;
+import com.example.imdbopen.person.domain.Personne;
 import persistence.repository.IActeurRepository;
 import persistence.repository.IPersonneRepository;
 import web.model.dto.ActeurDTO;
