@@ -3,30 +3,36 @@ name: Dependabot Auto-Merge and PR
 on:
   pull_request:
     branches:
-      ['main']
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   auto-merge-and-pr:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Check out source
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+        with:
+          persist-credentials: false
 
-    - name: Install GitHub CLI
-      run: sudo apt-get install gh -y
+      - name: Auto-merge Dependabot PRs
+        if: github.actor == 'dependabot[bot]'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          PR_NUMBER=$(jq --raw-output .number "$GITHUB_EVENT_PATH")
+          gh pr merge "$PR_NUMBER" --merge
 
-    - name: Auto-merge Dependabot PRs
-      if: github.actor == 'dependabot[bot]'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        PR_NUMBER=$(jq --raw-output .number "$GITHUB_EVENT_PATH")
-        gh pr merge $PR_NUMBER --merge
-
-    - name: Create PR from main to develop
-      if: github.actor == 'dependabot[bot]'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh pr create --base develop --head main --title "Sync main with develop" --body "Automated PR to sync main with develop after Dependabot merge"
+      - name: Create PR from main to develop
+        if: github.actor == 'dependabot[bot]'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr create --base develop --head main --title "Sync main with develop" --body "Automated PR to sync main with develop after Dependabot merge"
