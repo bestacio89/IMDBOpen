@@ -4,7 +4,7 @@ import web.model.dto.ActeurDTO;
 import web.model.dto.PersonneDTO;
 import persistence.repository.IActeurRepository;
 import persistence.repository.IPersonneRepository;
-import service.ActeurService;
+import com.example.imdbopen.actor.application.ActeurService;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReaderBuilder;
