@@ -2,7 +2,6 @@ package com.example.demo;
 
 import entities.business.Film.Film;
 import persistence.repository.IFilmRepository;
-import utilities.database.DatabaseInitializer;
 import web.controller.FilmController;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @ActiveProfiles("test")
 class ProductApplicationContextTest {
-
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -27,9 +25,6 @@ class ProductApplicationContextTest {
 
     @Autowired
     private IFilmRepository filmRepository;
-
-    @MockitoBean
-    private DatabaseInitializer databaseInitializer;
 
     @Test
     void shouldDiscoverFilmEntityRepositoryAndController() {
