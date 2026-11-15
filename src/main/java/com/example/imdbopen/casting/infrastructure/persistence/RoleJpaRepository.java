@@ -12,4 +12,10 @@ public interface RoleJpaRepository extends JpaRepository<Role, Long> {
 
     @Query("SELECT r FROM Role r WHERE r.film.tconst = :filmId AND r.acteur.personne.nconst = :actorId")
     List<Role> findByFilmIdAndActorId(@Param("filmId") String filmId, @Param("actorId") String actorId);
+
+    @Query("SELECT CASE WHEN COUNT(r) > 0 THEN TRUE ELSE FALSE END FROM Role r "
+            + "WHERE r.film.tconst = :filmId AND r.acteur.personne.nconst = :actorId AND r.roleName = :roleName")
+    boolean existsByFilmIdAndActorIdAndRoleName(@Param("filmId") String filmId,
+                                                @Param("actorId") String actorId,
+                                                @Param("roleName") String roleName);
 }

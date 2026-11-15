@@ -5,21 +5,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-/**
- * Application entry point. Legacy package scans remain temporarily explicit while
- * production types are migrated into the domain-owned package structure.
- */
 @SpringBootApplication(scanBasePackages = {
         "com.example.imdbopen",
         "com.example.demo",
-        "entities",
-        "utilities",
-        "service",
         "exceptions"
 })
-@EntityScan(basePackages = {"entities", "com.example.imdbopen"})
+@EntityScan(basePackages = "com.example.imdbopen")
 @EnableJpaRepositories(basePackages = {
-        "persistence.repository",
         "com.example.imdbopen.genre.infrastructure.persistence",
         "com.example.imdbopen.country.infrastructure.persistence",
         "com.example.imdbopen.actor.infrastructure.persistence",
@@ -29,7 +21,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.example.imdbopen.film.infrastructure.persistence"
 })
 public class ProductApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(ProductApplication.class, args);
     }

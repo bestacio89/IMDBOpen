@@ -36,6 +36,11 @@ public class JpaRoleRepositoryAdapter implements RoleStore {
     }
 
     @Override
+    public boolean existsByFilmIdAndActorIdAndRoleName(String filmId, String actorId, String roleName) {
+        return repository.existsByFilmIdAndActorIdAndRoleName(filmId, actorId, roleName);
+    }
+
+    @Override
     public Role save(Role role) {
         return repository.save(role);
     }

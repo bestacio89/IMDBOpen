@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface ActorStore {
     Optional<Acteur> findById(Long id);
+    Optional<Acteur> findByImdb(String imdbId);
     boolean existsById(Long id);
     Acteur save(Acteur actor);
     void deleteById(Long id);

@@ -20,6 +20,11 @@ public class ActeurService {
         this.personStore = personStore;
     }
 
+    @Transactional(readOnly = true)
+    public java.util.Optional<ActeurDTO> findByImdb(String imdbId) {
+        return actorStore.findByImdb(imdbId).map(ActeurDTO::fromEntity);
+    }
+
     @Transactional
     public ActeurDTO createActeur(ActeurDTO dto) {
         if (dto == null || dto.getPersonne() == null) throw new InvalidDataException("Invalid acteur or personne data");

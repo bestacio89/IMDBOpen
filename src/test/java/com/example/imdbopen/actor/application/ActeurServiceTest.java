@@ -31,6 +31,15 @@ class ActeurServiceTest {
     private ActeurService acteurService;
 
     @Test
+    void findsActorByExternalIdentifier() {
+        Acteur actor = new Acteur();
+        actor.setPersonne(new Personne("John Doe", "1990-01-01", "Paris", null));
+        when(actorStore.findByImdb("nm0000001")).thenReturn(Optional.of(actor));
+
+        assertEquals("nm0000001", acteurService.findByImdb("nm0000001").orElseThrow().getIdImdb());
+    }
+
+    @Test
     void createsActorAndPersistsCanonicalPersonWhenAbsent() {
         ActeurDTO dto = actorDto(personDto("John Doe", "01-01-1995"), "nm0000001");
         when(personStore.findByNconst("nm0000001")).thenReturn(Optional.empty());

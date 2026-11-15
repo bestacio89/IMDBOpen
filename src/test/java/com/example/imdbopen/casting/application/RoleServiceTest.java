@@ -60,6 +60,20 @@ class RoleServiceTest {
     }
 
     @Test
+    void skipsExistingCreditDuringImport() {
+        when(roleStore.existsByFilmIdAndActorIdAndRoleName("tt0000001", "nm0000001", "Admin"))
+                .thenReturn(true);
+        RoleDTO dto = new RoleDTO();
+        dto.setRoleName("Admin");
+        dto.setFilmId("tt0000001");
+        dto.setActeurId("nm0000001");
+
+        assertFalse(roleService.createRoleIfAbsent(dto));
+        verifyNoInteractions(filmLookup, actorLookup);
+        verify(roleStore, never()).save(any(Role.class));
+    }
+
+    @Test
     void rejectsCreditWhenFilmCannotBeResolved() {
         when(filmLookup.findByImdb("tt-missing")).thenReturn(Optional.empty());
         RoleDTO dto = new RoleDTO();

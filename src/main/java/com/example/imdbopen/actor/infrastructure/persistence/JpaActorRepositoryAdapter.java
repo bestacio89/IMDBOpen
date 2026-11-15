@@ -20,6 +20,11 @@ public class JpaActorRepositoryAdapter implements ActorStore {
     }
 
     @Override
+    public Optional<Acteur> findByImdb(String imdbId) {
+        return repository.findByImdb(imdbId);
+    }
+
+    @Override
     public boolean existsById(Long id) {
         return repository.existsById(id);
     }

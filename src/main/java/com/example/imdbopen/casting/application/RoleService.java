@@ -61,6 +61,23 @@ public class RoleService {
     }
 
     @Transactional
+    public boolean createRoleIfAbsent(RoleDTO roleDTO) {
+        if (roleDTO == null) {
+            throw new InvalidDataException("Role data cannot be null");
+        }
+        if (!StringUtils.hasText(roleDTO.getFilmId()) || !StringUtils.hasText(roleDTO.getActeurId())
+                || !StringUtils.hasText(roleDTO.getRoleName())) {
+            throw new InvalidDataException("Film ID, actor ID and role name are required");
+        }
+        if (roleStore.existsByFilmIdAndActorIdAndRoleName(
+                roleDTO.getFilmId(), roleDTO.getActeurId(), roleDTO.getRoleName())) {
+            return false;
+        }
+        createRole(roleDTO);
+        return true;
+    }
+
+    @Transactional
     public RoleDTO createRole(RoleDTO roleDTO) {
         if (roleDTO == null) {
             throw new InvalidDataException("Role data cannot be null");

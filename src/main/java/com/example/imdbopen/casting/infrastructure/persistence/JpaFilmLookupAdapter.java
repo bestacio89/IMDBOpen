@@ -1,22 +1,22 @@
 package com.example.imdbopen.casting.infrastructure.persistence;
 
 import com.example.imdbopen.casting.application.port.out.FilmLookup;
+import com.example.imdbopen.film.application.port.out.FilmStore;
 import com.example.imdbopen.film.domain.Film;
 import org.springframework.stereotype.Repository;
-import persistence.repository.IFilmRepository;
 
 import java.util.Optional;
 
 @Repository
 public class JpaFilmLookupAdapter implements FilmLookup {
-    private final IFilmRepository repository;
+    private final FilmStore filmStore;
 
-    public JpaFilmLookupAdapter(IFilmRepository repository) {
-        this.repository = repository;
+    public JpaFilmLookupAdapter(FilmStore filmStore) {
+        this.filmStore = filmStore;
     }
 
     @Override
     public Optional<Film> findByImdb(String imdbId) {
-        return repository.findByImdb(imdbId);
+        return filmStore.findByImdb(imdbId);
     }
 }

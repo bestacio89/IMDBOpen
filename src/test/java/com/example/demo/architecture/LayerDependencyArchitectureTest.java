@@ -9,55 +9,46 @@ import org.junit.jupiter.api.Test;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 class LayerDependencyArchitectureTest {
-    private static JavaClasses applicationClasses;
+    private static JavaClasses productionClasses;
 
     @BeforeAll
-    static void importApplicationClasses() {
-        applicationClasses = new ClassFileImporter()
+    static void importProductionClasses() {
+        productionClasses = new ClassFileImporter()
                 .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-                .importPackages("entities", "service", "persistence", "web",
-                        "exceptions", "utilities", "com.example.demo", "com.example.imdbopen");
+                .importPackages("exceptions", "com.example.demo", "com.example.imdbopen");
     }
 
     @Test
-    void domainEntitiesDoNotDependOnApplicationOrDeliveryLayers() {
-        noClasses().that().resideInAPackage("..entities..")
-                .should().dependOnClassesThat()
-                .resideInAnyPackage("service..", "web..", "persistence..", "..application..", "..api..")
-                .check(applicationClasses);
-    }
-
-    @Test
-    void modularDomainPackagesDoNotDependOnApplicationOrDeliveryLayers() {
+    void domainPackagesDoNotDependOnApplicationDeliveryOrInfrastructure() {
         noClasses().that().resideInAPackage("..domain..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("service..", "..application..", "..api..", "web..", "persistence..")
-                .check(applicationClasses);
+                .resideInAnyPackage("..application..", "..api..", "..infrastructure..")
+                .check(productionClasses);
     }
 
     @Test
-    void applicationServicesDoNotDependOnSpringDataOrPersistenceAdapters() {
+    void applicationPackagesDoNotDependOnSpringDataOrPersistenceAdapters() {
         noClasses().that().resideInAPackage("..application..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("org.springframework.data..",
-                        "..infrastructure.persistence..", "persistence.repository..")
-                .check(applicationClasses);
+                .resideInAnyPackage("org.springframework.data..", "..infrastructure.persistence..",
+                        "persistence.repository..", "service..", "web..")
+                .check(productionClasses);
     }
 
     @Test
-    void moduleApiControllersDoNotDependOnPersistenceRepositories() {
-        noClasses().that().resideInAnyPackage("..api..", "web.controller..")
-                .should().dependOnClassesThat()
-                .resideInAnyPackage("persistence.repository..", "..infrastructure.persistence..", "web..")
-                .check(applicationClasses);
-    }
-
-    @Test
-    void applicationServicesDoNotDependOnHttpControllers() {
+    void applicationPackagesDoNotDependOnHttpApiPackages() {
         noClasses().that().resideInAPackage("..application..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("..api..", "web.controller..")
-                .check(applicationClasses);
+                .resideInAPackage("..api..")
+                .check(productionClasses);
+    }
+
+    @Test
+    void apiPackagesDoNotDependOnPersistenceImplementations() {
+        noClasses().that().resideInAPackage("..api..")
+                .should().dependOnClassesThat()
+                .resideInAnyPackage("..infrastructure.persistence..", "persistence.repository..", "web..")
+                .check(productionClasses);
     }
 
     @Test
@@ -66,14 +57,23 @@ class LayerDependencyArchitectureTest {
                 .should().dependOnClassesThat()
                 .resideInAnyPackage("org.springframework..", "org.springframework.data..",
                         "..api..", "web..", "persistence..", "..infrastructure..")
-                .check(applicationClasses);
+                .check(productionClasses);
     }
 
     @Test
-    void persistenceRepositoriesDoNotDependOnDeliveryOrApplicationServices() {
-        noClasses().that().resideInAPackage("persistence.repository..")
+    void ingestionAdaptersDoNotAccessPersistenceDirectly() {
+        noClasses().that().resideInAPackage("..ingestion.infrastructure..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("service..", "web..", "..api..", "..application..")
-                .check(applicationClasses);
+                .resideInAnyPackage("org.springframework.data..", "org.springframework.jdbc..",
+                        "..infrastructure.persistence..", "persistence.repository..")
+                .check(productionClasses);
+    }
+
+    @Test
+    void moduleInfrastructureAdaptersDoNotDependOnHttpApiPackages() {
+        noClasses().that().resideInAPackage("..infrastructure.persistence..")
+                .should().dependOnClassesThat()
+                .resideInAPackage("..api..")
+                .check(productionClasses);
     }
 }

@@ -11,15 +11,21 @@ import com.example.imdbopen.film.domain.Film;
 import com.example.imdbopen.film.application.port.out.FilmStore;
 import com.example.imdbopen.film.application.port.out.GenreCatalog;
 import com.example.imdbopen.film.application.port.out.CountryCatalog;
+import com.example.imdbopen.film.application.port.out.FilmDirectorStore;
+import com.example.imdbopen.film.application.port.out.DirectorLookup;
 import com.example.imdbopen.person.application.port.out.PersonStore;
+import com.example.imdbopen.film.api.FilmController;
+import com.example.imdbopen.ingestion.infrastructure.csv.ActorExtractor;
+import com.example.imdbopen.ingestion.infrastructure.csv.FilmExtractor;
+import com.example.imdbopen.ingestion.infrastructure.csv.FilmRealisateurExtractor;
+import com.example.imdbopen.ingestion.infrastructure.csv.RealisateurExtractor;
+import com.example.imdbopen.ingestion.infrastructure.csv.RoleExtractor;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-import persistence.repository.IFilmRepository;
-import com.example.imdbopen.film.api.FilmController;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,8 +38,6 @@ class ProductApplicationContextTest {
     @Autowired
     private EntityManagerFactory entityManagerFactory;
     @Autowired
-    private IFilmRepository filmRepository;
-    @Autowired
     private CountryStore countryStore;
     @Autowired
     private ActorStore actorStore;
@@ -41,24 +45,35 @@ class ProductApplicationContextTest {
     private PersonStore personStore;
     @Autowired
     private DirectorStore directorStore;
-
     @Autowired
     private RoleStore roleStore;
     @Autowired
     private FilmLookup filmLookup;
     @Autowired
     private ActorLookup actorLookup;
-
     @Autowired
     private FilmStore filmStore;
     @Autowired
     private GenreCatalog genreCatalog;
     @Autowired
     private CountryCatalog countryCatalog;
+    @Autowired
+    private FilmDirectorStore filmDirectorStore;
+    @Autowired
+    private DirectorLookup directorLookup;
+    @Autowired
+    private ActorExtractor actorExtractor;
+    @Autowired
+    private FilmExtractor filmExtractor;
+    @Autowired
+    private FilmRealisateurExtractor filmRealisateurExtractor;
+    @Autowired
+    private RealisateurExtractor realisateurExtractor;
+    @Autowired
+    private RoleExtractor roleExtractor;
 
     @Test
-    void discoversFilmEntityRepositoryControllerAndModularStores() {
-        assertNotNull(filmRepository);
+    void discoversModularStoresApiAndCsvAdapters() {
         assertNotNull(countryStore);
         assertNotNull(actorStore);
         assertNotNull(personStore);
@@ -69,6 +84,13 @@ class ProductApplicationContextTest {
         assertNotNull(filmStore);
         assertNotNull(genreCatalog);
         assertNotNull(countryCatalog);
+        assertNotNull(filmDirectorStore);
+        assertNotNull(directorLookup);
+        assertNotNull(actorExtractor);
+        assertNotNull(filmExtractor);
+        assertNotNull(filmRealisateurExtractor);
+        assertNotNull(realisateurExtractor);
+        assertNotNull(roleExtractor);
         assertNotNull(applicationContext.getBean(FilmController.class));
         assertTrue(entityManagerFactory.getMetamodel().getEntities().stream()
                 .anyMatch(entityType -> entityType.getJavaType().equals(Film.class)));

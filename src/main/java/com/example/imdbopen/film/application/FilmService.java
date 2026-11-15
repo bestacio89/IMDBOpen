@@ -105,6 +105,9 @@ public class FilmService {
         if (filmDTO == null) {
             throw new InvalidDataException("Film data cannot be null");
         }
+        if (!StringUtils.hasText(filmDTO.getImdb())) {
+            throw new InvalidDataException("Film IMDb identifier is required");
+        }
         Film film = filmDTO.toEntity();
         film.setPays(resolveCountry(filmDTO.getPays()));
         synchronizeGenres(film, filmDTO.getGenres());
