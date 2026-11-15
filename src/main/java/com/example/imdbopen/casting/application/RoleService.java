@@ -11,7 +11,7 @@ import exceptions.InvalidDataException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import web.model.dto.RoleDTO;
+import com.example.imdbopen.casting.contracts.RoleDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;

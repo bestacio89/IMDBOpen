@@ -1,9 +1,8 @@
-package web.model.dto;
+package com.example.imdbopen.genre.contracts;
 
 public class GenreDTO {
     private Long id;
     private String nom;
-
 
     public Long getId() {
         return id;

@@ -11,7 +11,8 @@ import exceptions.InvalidDataException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import web.model.dto.FilmDTO;
+import com.example.imdbopen.film.contracts.FilmDTO;
+import com.example.imdbopen.film.contracts.CountryReference;
 
 import java.util.Arrays;
 import java.util.List;
@@ -136,7 +137,7 @@ public class FilmService {
         filmStore.delete(film);
     }
 
-    private Pays resolveCountry(Pays requested) {
+    private Pays resolveCountry(CountryReference requested) {
         if (requested == null) {
             return null;
         }

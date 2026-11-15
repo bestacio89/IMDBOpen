@@ -4,7 +4,7 @@ import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import com.example.imdbopen.film.application.FilmService;
 
-import web.model.dto.FilmDTO;
+import com.example.imdbopen.film.contracts.FilmDTO;
 import web.model.generic.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

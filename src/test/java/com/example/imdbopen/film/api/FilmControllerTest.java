@@ -3,7 +3,7 @@ package com.example.imdbopen.film.api;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import com.example.imdbopen.film.application.FilmService;
-import web.model.dto.FilmDTO;
+import com.example.imdbopen.film.contracts.FilmDTO;
 import web.model.generic.ApiResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

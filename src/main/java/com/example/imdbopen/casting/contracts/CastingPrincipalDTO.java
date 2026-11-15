@@ -1,7 +1,4 @@
-package web.model.dto;
-
-
-import entities.business.CastingPrincipal.CastingPrincipal;
+package com.example.imdbopen.casting.contracts;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +9,6 @@ public class CastingPrincipalDTO {
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 
-    // Getters and Setters
     public Long getIdCasting() {
         return idCasting;
     }
@@ -51,23 +47,5 @@ public class CastingPrincipalDTO {
 
     public void setUpdatedDate(LocalDateTime updatedDate) {
         this.updatedDate = updatedDate;
-    }
-
-    // Convert from Entity to DTO
-    public static CastingPrincipalDTO fromEntity(CastingPrincipal castingPrincipal) {
-        CastingPrincipalDTO dto = new CastingPrincipalDTO();
-        dto.setIdCasting(castingPrincipal.getIdCasting());
-        dto.setFilmId(castingPrincipal.getFilmId());
-        dto.setActeurId(castingPrincipal.getActeurId());
-        return dto;
-    }
-
-    // Convert from DTO to Entity
-    public static CastingPrincipal toEntity(CastingPrincipalDTO dto) {
-        CastingPrincipal castingPrincipal = new CastingPrincipal();
-        castingPrincipal.setIdCasting(dto.getIdCasting());
-        castingPrincipal.setFilmId(dto.getFilmId());
-        castingPrincipal.setActeurId(dto.getActeurId());
-        return castingPrincipal;
     }
 }

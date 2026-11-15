@@ -1,7 +1,7 @@
 package utilities.csvextractors;
 
-import web.model.dto.ActeurDTO;
-import web.model.dto.PersonneDTO;
+import com.example.imdbopen.actor.contracts.ActeurDTO;
+import com.example.imdbopen.person.contracts.PersonneDTO;
 import persistence.repository.IActeurRepository;
 import persistence.repository.IPersonneRepository;
 import com.example.imdbopen.actor.application.ActeurService;

@@ -8,7 +8,7 @@ import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import web.model.dto.ActeurDTO;
+import com.example.imdbopen.actor.contracts.ActeurDTO;
 
 @Service
 public class ActeurService {

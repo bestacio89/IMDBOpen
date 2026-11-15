@@ -3,7 +3,7 @@ package com.example.imdbopen.actor.api;
 import com.example.imdbopen.actor.application.ActeurService;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
-import web.model.dto.ActeurDTO;
+import com.example.imdbopen.actor.contracts.ActeurDTO;
 import web.model.generic.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

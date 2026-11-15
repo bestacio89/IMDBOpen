@@ -13,7 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import web.model.dto.RealisateurDTO;
+import com.example.imdbopen.director.contracts.RealisateurDTO;
 
 import java.util.List;
 import java.util.Optional;

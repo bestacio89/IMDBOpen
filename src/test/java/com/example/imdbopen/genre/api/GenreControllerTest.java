@@ -2,7 +2,7 @@ package com.example.imdbopen.genre.api;
 
 import com.example.imdbopen.genre.domain.Genre;
 import com.example.imdbopen.genre.application.GenreService;
-import web.model.dto.GenreDTO;
+import com.example.imdbopen.genre.contracts.GenreDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

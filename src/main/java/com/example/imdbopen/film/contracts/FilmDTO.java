@@ -1,8 +1,6 @@
-package web.model.dto;
-
+package com.example.imdbopen.film.contracts;
 
 import com.example.imdbopen.film.domain.Film;
-import com.example.imdbopen.country.domain.Pays;
 import lombok.Data;
 
 @Data
@@ -16,7 +14,7 @@ public class FilmDTO {
     private String lieuTour;
     private String langue;
     private String resume;
-    private Pays pays;
+    private CountryReference pays;
     private String genres;
 
     public static FilmDTO fromEntity(Film film) {
@@ -30,7 +28,7 @@ public class FilmDTO {
         dto.setLieuTour(film.getLieuTour());
         dto.setLangue(film.getLangue());
         dto.setResume(film.getResume());
-        dto.setPays(film.getPays());
+        dto.setPays(CountryReference.fromEntity(film.getPays()));
         dto.setGenres(film.getGenres());
         return dto;
     }
@@ -46,7 +44,7 @@ public class FilmDTO {
         film.setLieuTour(this.lieuTour);
         film.setLangue(this.langue);
         film.setResume(this.resume);
-        film.setPays(this.pays);
+        film.setPays(this.pays == null ? null : this.pays.toEntity());
         film.setGenres(this.getGenres());
         return film;
     }

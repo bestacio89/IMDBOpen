@@ -4,7 +4,7 @@ import com.example.imdbopen.country.application.PaysService;
 import com.example.imdbopen.country.domain.Pays;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import web.model.dto.PaysDTO;
+import com.example.imdbopen.country.contracts.PaysDTO;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package com.example.imdbopen.director.api;
 
 import com.example.imdbopen.director.application.RealisateurService;
-import web.model.dto.RealisateurDTO;
+import com.example.imdbopen.director.contracts.RealisateurDTO;
 import web.model.generic.ApiResponse;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;

@@ -1,7 +1,7 @@
-package web.model.dto;
+package com.example.imdbopen.director.contracts;
 
-import com.example.imdbopen.person.domain.Personne;
 import com.example.imdbopen.director.domain.Realisateur;
+import com.example.imdbopen.person.domain.Personne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -33,7 +33,9 @@ public class RealisateurDTO {
     }
 
     public static RealisateurDTO fromEntity(Realisateur realisateur) {
-        if (realisateur == null || realisateur.getPersonne() == null) return null;
+        if (realisateur == null || realisateur.getPersonne() == null) {
+            return null;
+        }
         Personne person = realisateur.getPersonne();
         return new RealisateurDTO(realisateur.getId(), person.getIdentite(), person.getDateNaissance(),
                 person.getLieuNaissance(), person.getUrl(), realisateur.getIdImdb(), null, null);

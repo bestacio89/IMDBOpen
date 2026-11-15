@@ -12,7 +12,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.imdbopen.film.application.FilmService;
-import web.model.dto.FilmDTO;
+import com.example.imdbopen.film.contracts.FilmDTO;
 
 import java.io.FileReader;
 import java.io.IOException;

@@ -9,7 +9,7 @@ import exceptions.InvalidDataException;
 import exceptions.ServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import web.model.dto.RealisateurDTO;
+import com.example.imdbopen.director.contracts.RealisateurDTO;
 
 import java.util.List;
 import java.util.Optional;

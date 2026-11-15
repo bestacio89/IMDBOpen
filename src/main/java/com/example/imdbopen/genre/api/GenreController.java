@@ -3,7 +3,7 @@ package com.example.imdbopen.genre.api;
 
 import com.example.imdbopen.genre.domain.Genre;
 import com.example.imdbopen.genre.application.GenreService;
-import web.model.dto.GenreDTO;
+import com.example.imdbopen.genre.contracts.GenreDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

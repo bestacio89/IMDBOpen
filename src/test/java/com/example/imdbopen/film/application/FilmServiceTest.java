@@ -1,6 +1,7 @@
 package com.example.imdbopen.film.application;
 
 import com.example.imdbopen.country.domain.Pays;
+import com.example.imdbopen.film.contracts.CountryReference;
 import com.example.imdbopen.film.application.port.out.CountryCatalog;
 import com.example.imdbopen.film.application.port.out.FilmStore;
 import com.example.imdbopen.film.application.port.out.GenreCatalog;
@@ -13,7 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import web.model.dto.FilmDTO;
+import com.example.imdbopen.film.contracts.FilmDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -79,7 +80,7 @@ class FilmServiceTest {
         dto.setImdb("tt0000010");
         dto.setNom("Test Film");
         dto.setAnnee("2026");
-        dto.setPays(country);
+        dto.setPays(CountryReference.fromEntity(country));
         dto.setGenres("Drama, Comedy");
 
         FilmDTO result = filmService.createFilm(dto);
@@ -103,7 +104,9 @@ class FilmServiceTest {
         FilmDTO dto = new FilmDTO();
         dto.setImdb("tt0000011");
         dto.setNom("New Film");
-        dto.setPays(new Pays(null, "France"));
+        CountryReference country = new CountryReference();
+        country.setName("France");
+        dto.setPays(country);
         dto.setGenres("Drama");
 
         filmService.createFilm(dto);

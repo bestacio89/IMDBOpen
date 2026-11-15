@@ -1,6 +1,9 @@
-package web.model.dto;
+package com.example.imdbopen.actor.contracts;
 
+import com.example.imdbopen.casting.contracts.RoleDTO;
+import com.example.imdbopen.film.contracts.FilmDTO;
 import com.example.imdbopen.actor.domain.Acteur;
+import com.example.imdbopen.person.contracts.PersonneDTO;
 import com.example.imdbopen.person.domain.BirthDateParser;
 import lombok.Data;
 

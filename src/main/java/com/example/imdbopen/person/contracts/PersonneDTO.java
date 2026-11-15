@@ -1,6 +1,4 @@
-package web.model.dto;
-
-
+package com.example.imdbopen.person.contracts;
 
 import com.example.imdbopen.person.domain.Personne;
 import lombok.Data;

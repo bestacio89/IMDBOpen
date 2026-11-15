@@ -1,11 +1,9 @@
-package web.model.dto;
+package com.example.imdbopen.country.contracts;
 
 public class PaysDTO {
-
     private Long id;
     private String nom;
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

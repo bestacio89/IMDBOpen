@@ -1,48 +1,27 @@
-package web.model.dto;
-
+package com.example.imdbopen.casting.contracts;
 
 import com.example.imdbopen.casting.domain.Role;
 import lombok.Getter;
 import lombok.Setter;
 
 public class RoleDTO {
-
     @Setter
     @Getter
     private Long id;
-
     @Setter
     @Getter
     private String roleName;
-    private String filmId; // Use String for the foreign key ID
-    private String acteurId; // Use String for the foreign key ID
+    private String filmId;
+    private String acteurId;
 
-    // Default constructor
-    public RoleDTO() {}
+    public RoleDTO() {
+    }
 
-    // Parameterized constructor
     public RoleDTO(Long id, String roleName, String filmId, String acteurId) {
         this.id = id;
         this.roleName = roleName;
         this.filmId = filmId;
         this.acteurId = acteurId;
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
     }
 
     public String getFilmId() {
@@ -61,14 +40,8 @@ public class RoleDTO {
         this.acteurId = acteurId;
     }
 
-    // Static method to convert a Role entity to a RoleDTO
     public static RoleDTO fromEntity(Role role) {
-        return new RoleDTO(
-                role.getId(),
-                role.getRoleName(),
-                role.getFilmId(),
-                role.getActeurId()
-        );
+        return new RoleDTO(role.getId(), role.getRoleName(), role.getFilmId(), role.getActeurId());
     }
 
     public Role toEntity() {

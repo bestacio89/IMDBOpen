@@ -61,6 +61,15 @@ class LayerDependencyArchitectureTest {
     }
 
     @Test
+    void contractsDoNotDependOnDeliveryOrPersistenceImplementation() {
+        noClasses().that().resideInAPackage("..contracts..")
+                .should().dependOnClassesThat()
+                .resideInAnyPackage("org.springframework..", "org.springframework.data..",
+                        "..api..", "web..", "persistence..", "..infrastructure..")
+                .check(applicationClasses);
+    }
+
+    @Test
     void persistenceRepositoriesDoNotDependOnDeliveryOrApplicationServices() {
         noClasses().that().resideInAPackage("persistence.repository..")
                 .should().dependOnClassesThat()

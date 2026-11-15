@@ -1,7 +1,7 @@
 package com.example.imdbopen.casting.api;
 
 import com.example.imdbopen.casting.application.RoleService;
-import web.model.dto.RoleDTO;
+import com.example.imdbopen.casting.contracts.RoleDTO;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import tools.jackson.databind.json.JsonMapper;

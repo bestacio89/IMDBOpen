@@ -12,8 +12,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import web.model.dto.ActeurDTO;
-import web.model.dto.PersonneDTO;
+import com.example.imdbopen.actor.contracts.ActeurDTO;
+import com.example.imdbopen.person.contracts.PersonneDTO;
 
 import java.util.Optional;
 

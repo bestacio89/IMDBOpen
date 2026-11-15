@@ -6,7 +6,7 @@ import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import web.model.dto.CastingPrincipalDTO;
+import com.example.imdbopen.casting.contracts.CastingPrincipalDTO;
 
 import java.util.List;
 
