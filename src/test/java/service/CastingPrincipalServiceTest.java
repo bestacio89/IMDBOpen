@@ -1,85 +1,99 @@
 package service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-
-import entities.business.CastingPrincipal.CastingPrincipal;
-import persistence.repository.ICastingPrincipalRepository;
+import entities.business.role.Role;
+import exceptions.EntityNotFoundException;
+import exceptions.InvalidDataException;
+import persistence.repository.IRoleRepository;
 import web.model.dto.CastingPrincipalDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
-public class CastingPrincipalServiceTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-    @InjectMocks
-    private CastingPrincipalService castingPrincipalService;
-
+@ExtendWith(MockitoExtension.class)
+class CastingPrincipalServiceTest {
     @Mock
-    private ICastingPrincipalRepository castingPrincipalRepository;
+    private IRoleRepository roleRepository;
+
+    private CastingPrincipalService service;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        service = new CastingPrincipalService(roleRepository);
     }
 
     @Test
-    void testGetCastingByFilmAndActeur() {
-        CastingPrincipal castingPrincipal = new CastingPrincipal();
-        castingPrincipal.setFilmId("film1");
-        castingPrincipal.setActeurId("acteur1");
-        when(castingPrincipalRepository.findByFilmIdAndActeurId("film1", "acteur1"))
-                .thenReturn(Optional.of(castingPrincipal));
+    void retrievesPrincipalCredit() {
+        Role credit = credit(true);
+        when(roleRepository.findByFilmIdAndActorId("film1", "acteur1")).thenReturn(List.of(credit));
 
-        CastingPrincipalDTO result = castingPrincipalService.getCastingByFilmAndActeur("film1", "acteur1");
-        assertNotNull(result);
+        CastingPrincipalDTO result = service.getCastingByFilmAndActeur("film1", "acteur1");
+
         assertEquals("film1", result.getFilmId());
         assertEquals("acteur1", result.getActeurId());
     }
 
     @Test
-    void testCreateCasting() {
-        CastingPrincipalDTO castingPrincipalDTO = new CastingPrincipalDTO();
-        castingPrincipalDTO.setFilmId("film1");
-        castingPrincipalDTO.setActeurId("acteur1");
+    void marksExistingCreditAsPrincipal() {
+        Role credit = credit(false);
+        when(roleRepository.findByFilmIdAndActorId("film1", "acteur1")).thenReturn(List.of(credit));
 
-        CastingPrincipal castingPrincipal = new CastingPrincipal();
-        castingPrincipal.setFilmId("film1");
-        castingPrincipal.setActeurId("acteur1");
+        service.createCasting(dto());
 
-        when(castingPrincipalRepository.save(any(CastingPrincipal.class))).thenReturn(castingPrincipal);
-
-        castingPrincipalService.createCasting(castingPrincipalDTO);
-        verify(castingPrincipalRepository, times(1)).save(any(CastingPrincipal.class));
+        assertTrue(credit.isPrincipal());
+        verify(roleRepository).save(credit);
     }
 
     @Test
-    void testUpdateCasting() {
-        CastingPrincipalDTO castingPrincipalDTO = new CastingPrincipalDTO();
-        castingPrincipalDTO.setFilmId("film1");
-        castingPrincipalDTO.setActeurId("acteur1");
+    void rejectsMovingPrincipalFlagToAnotherCredit() {
+        Role existing = credit(true);
+        existing.setId(1L);
+        Role target = credit(false);
+        target.setId(2L);
+        when(roleRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(roleRepository.findByFilmIdAndActorId("film2", "acteur2")).thenReturn(List.of(target));
 
-        CastingPrincipal castingPrincipal = new CastingPrincipal();
-        castingPrincipal.setFilmId("film1");
-        castingPrincipal.setActeurId("acteur1");
-
-        when(castingPrincipalRepository.findById(1L)).thenReturn(Optional.of(castingPrincipal));
-        when(castingPrincipalRepository.save(any(CastingPrincipal.class))).thenReturn(castingPrincipal);
-
-        castingPrincipalService.updateCasting(1L, castingPrincipalDTO);
-        verify(castingPrincipalRepository, times(1)).save(any(CastingPrincipal.class));
+        assertThrows(InvalidDataException.class, () -> service.updateCasting(1L, dto("film2", "acteur2")));
+        verify(roleRepository, never()).save(any());
     }
 
     @Test
-    void testDeleteCastingByFilmAndActeur() {
-        when(castingPrincipalRepository.existsByFilmIdAndActeurId("film1", "acteur1")).thenReturn(true);
+    void clearsPrincipalFlagWithoutDeletingTheUnderlyingCredit() {
+        Role credit = credit(true);
+        when(roleRepository.findByFilmIdAndActorId("film1", "acteur1")).thenReturn(List.of(credit));
 
-        castingPrincipalService.deleteCastingByFilmAndActeur("film1", "acteur1");
-        verify(castingPrincipalRepository, times(1)).deleteByFilmIdAndActeurId("film1", "acteur1");
+        service.deleteCastingByFilmAndActeur("film1", "acteur1");
+
+        assertFalse(credit.isPrincipal());
+        verify(roleRepository).save(credit);
+        verify(roleRepository, never()).delete(any());
+    }
+
+    @Test
+    void rejectsPrincipalCastingWithoutAnExistingCredit() {
+        when(roleRepository.findByFilmIdAndActorId("film1", "acteur1")).thenReturn(List.of());
+        assertThrows(EntityNotFoundException.class, () -> service.createCasting(dto()));
+    }
+
+    private Role credit(boolean principal) {
+        Role role = new Role("Character", "film1", "acteur1");
+        role.setPrincipal(principal);
+        return role;
+    }
+
+    private CastingPrincipalDTO dto() { return dto("film1", "acteur1"); }
+
+    private CastingPrincipalDTO dto(String filmId, String actorId) {
+        CastingPrincipalDTO dto = new CastingPrincipalDTO();
+        dto.setFilmId(filmId);
+        dto.setActeurId(actorId);
+        return dto;
     }
 }

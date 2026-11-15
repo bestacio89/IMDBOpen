@@ -35,6 +35,11 @@ public class Acteur {
         setTaille(taille);
     }
 
+    public void setPersonne(Personne value) {
+        this.personne = value;
+        if (value != null && pendingImdbId != null) value.setNconst(pendingImdbId);
+    }
+
     public String getIdImdb() {
         return personne == null ? pendingImdbId : personne.getNconst();
     }
@@ -58,5 +63,6 @@ public class Acteur {
         this.personne = new Personne();
         this.personne.setIdentite(identite);
         this.personne.setDateNaissance(dateNaissance);
+        if (pendingImdbId != null) this.personne.setNconst(pendingImdbId);
     }
 }
