@@ -3,7 +3,6 @@ package com.example.demo;
 import entities.business.Film.Film;
 import entities.business.Film.FilmDirector;
 import entities.business.Film.FilmDirectorId;
-import entities.business.Film.Film;
 import entities.business.genre.Genre;
 import entities.business.personne.Acteur;
 import entities.business.personne.Personne;
@@ -20,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

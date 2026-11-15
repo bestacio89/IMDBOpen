@@ -77,10 +77,22 @@ class RealisateurServiceTest {
         RealisateurDTO result = service.update(dto);
 
         assertEquals("Updated Name", result.getIdentite());
-        assertSame(director.getPersonne(), director.getPersonne());
+        assertEquals("nm0000001", director.getPersonne().getNconst());
         assertEquals("nm0000001", director.getPersonne().getNconst());
         assertEquals("Lyon", director.getPersonne().getLieuNaissance());
         verify(repository).save(director);
+    }
+
+    @Test
+    void rejectsChangingAnExistingDirectorExternalIdentifier() {
+        Realisateur director = director();
+        when(repository.findById(1L)).thenReturn(Optional.of(director));
+        RealisateurDTO dto = new RealisateurDTO();
+        dto.setId(1L);
+        dto.setIdImdb("nm0000002");
+
+        assertThrows(exceptions.InvalidDataException.class, () -> service.update(dto));
+        verify(repository, never()).save(any(Realisateur.class));
     }
 
     @Test

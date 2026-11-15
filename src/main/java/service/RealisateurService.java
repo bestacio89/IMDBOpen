@@ -67,8 +67,9 @@ public class RealisateurService {
         person.setDateNaissance(dto.getDateNaissance());
         person.setLieuNaissance(dto.getLieuNaissance());
         person.setUrl(dto.getUrl());
-        if (dto.getIdImdb() != null && !dto.getIdImdb().isBlank()) {
-            person.setNconst(dto.getIdImdb());
+        if (dto.getIdImdb() != null && !dto.getIdImdb().isBlank()
+                && !dto.getIdImdb().equals(person.getNconst())) {
+            throw new InvalidDataException("IMDb identifier cannot be changed for an existing director");
         }
         try {
             return RealisateurDTO.fromEntity(realisateurRepository.save(existing));

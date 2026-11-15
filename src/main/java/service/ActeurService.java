@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import persistence.repository.IActeurRepository;
 import persistence.repository.IPersonneRepository;
 
-import java.util.Optional;
 
 @Service
 public class ActeurService {
@@ -58,8 +57,9 @@ public class ActeurService {
         }
 
         if (dto.getTaille() != null) existing.setTaille(dto.getTaille());
-        if (dto.getIdImdb() != null && !dto.getIdImdb().isBlank()) {
-            existing.setIdImdb(dto.getIdImdb());
+        if (dto.getIdImdb() != null && !dto.getIdImdb().isBlank()
+                && !dto.getIdImdb().equals(existing.getIdImdb())) {
+            throw new InvalidDataException("IMDb identifier cannot be changed for an existing actor");
         }
 
         if (dto.getPersonne() != null) {

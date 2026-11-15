@@ -108,6 +108,21 @@ class ActeurServiceTest {
     }
 
     @Test
+    void rejectsChangingAnExistingActorExternalIdentifier() {
+        Personne person = new Personne("John Doe", "1990-01-01", "Paris", null);
+        person.setId(1L);
+        person.setNconst("nm0000001");
+        Acteur actor = new Acteur();
+        actor.setId(1L);
+        actor.setPersonne(person);
+        when(acteurRepository.findById(1L)).thenReturn(Optional.of(actor));
+
+        ActeurDTO dto = actorDto(personDto("John Doe", "1990-01-01"), "nm0000002");
+        assertThrows(InvalidDataException.class, () -> acteurService.updateActeur(1L, dto));
+        verify(acteurRepository, never()).save(any(Acteur.class));
+    }
+
+    @Test
     void rejectsUpdateForMissingActor() {
         when(acteurRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class, () -> acteurService.updateActeur(1L, new ActeurDTO()));

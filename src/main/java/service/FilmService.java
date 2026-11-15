@@ -138,7 +138,7 @@ public class FilmService {
 
     private void synchronizeGenres(Film film, String genreNames) {
         if (!StringUtils.hasText(genreNames)) {
-            film.setGenresl(Set.of());
+            film.setGenresl(new java.util.HashSet<>());
             film.setGenres(null);
             return;
         }
