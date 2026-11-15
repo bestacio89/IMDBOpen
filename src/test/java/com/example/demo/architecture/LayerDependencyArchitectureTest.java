@@ -35,6 +35,15 @@ class LayerDependencyArchitectureTest {
                 .check(applicationClasses);
     }
 
+
+    @Test
+    void applicationServicesDoNotDependOnSpringDataOrPersistenceAdapters() {
+        noClasses().that().resideInAPackage("..application..")
+                .should().dependOnClassesThat()
+                .resideInAnyPackage("org.springframework.data..", "..infrastructure.persistence..")
+                .check(applicationClasses);
+    }
+
     @Test
     void controllersDoNotDependOnPersistenceRepositories() {
         noClasses()

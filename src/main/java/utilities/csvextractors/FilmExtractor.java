@@ -5,7 +5,7 @@ import com.example.imdbopen.film.domain.Film;
 import com.example.imdbopen.genre.domain.Genre;
 import com.example.imdbopen.country.domain.Pays;
 import service.FilmService;
-import service.GenreService;
+import com.example.imdbopen.genre.application.GenreService;
 import service.PaysService;
 import web.model.dto.FilmDTO;
 import com.opencsv.CSVReader;

@@ -1,7 +1,7 @@
 package web.controller;
 
 import com.example.imdbopen.genre.domain.Genre;
-import service.GenreService;
+import com.example.imdbopen.genre.application.GenreService;
 import web.model.dto.GenreDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

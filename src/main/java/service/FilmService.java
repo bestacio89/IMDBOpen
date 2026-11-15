@@ -6,7 +6,7 @@ import com.example.imdbopen.country.domain.Pays;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import persistence.repository.IFilmRepository;
-import persistence.repository.IGenreRepository;
+import com.example.imdbopen.genre.application.port.out.GenreStore;
 import persistence.repository.IPaysRepository;
 import web.model.dto.FilmDTO;
 import org.springframework.stereotype.Service;
@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class FilmService {
     private final IFilmRepository filmRepository;
-    private final IGenreRepository genreRepository;
+    private final GenreStore genreStore;
     private final IPaysRepository paysRepository;
 
-    public FilmService(IFilmRepository filmRepository, IGenreRepository genreRepository,
+    public FilmService(IFilmRepository filmRepository, GenreStore genreStore,
                        IPaysRepository paysRepository) {
         this.filmRepository = filmRepository;
-        this.genreRepository = genreRepository;
+        this.genreStore = genreStore;
         this.paysRepository = paysRepository;
     }
 
@@ -153,8 +153,8 @@ public class FilmService {
 
     @Transactional
     public Genre findOrCreateGenre(String genreName) {
-        return genreRepository.findByName(genreName)
-                .orElseGet(() -> genreRepository.save(new Genre(null, genreName)));
+        return genreStore.findByName(genreName)
+                .orElseGet(() -> genreStore.save(new Genre(null, genreName)));
     }
 
     @Transactional

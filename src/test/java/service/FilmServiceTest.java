@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.example.imdbopen.film.domain.Film;
 import persistence.repository.IFilmRepository;
+import com.example.imdbopen.genre.application.port.out.GenreStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,6 +19,9 @@ public class FilmServiceTest {
 
     @Mock
     private IFilmRepository filmRepository;
+
+    @Mock
+    private GenreStore genreStore;
 
     @BeforeEach
     void setUp() {

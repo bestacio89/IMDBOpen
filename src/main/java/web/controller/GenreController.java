@@ -2,7 +2,7 @@ package web.controller;
 
 
 import com.example.imdbopen.genre.domain.Genre;
-import service.GenreService;
+import com.example.imdbopen.genre.application.GenreService;
 import web.model.dto.GenreDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
