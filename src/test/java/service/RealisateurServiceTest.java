@@ -1,7 +1,7 @@
 package service;
 
 import com.example.imdbopen.person.domain.Personne;
-import entities.business.personne.Realisateur;
+import com.example.imdbopen.director.domain.Realisateur;
 import persistence.repository.IPersonneRepository;
 import persistence.repository.IRealisateurRepository;
 import web.model.dto.RealisateurDTO;
@@ -22,10 +22,8 @@ import static org.mockito.Mockito.*;
 class RealisateurServiceTest {
     @InjectMocks
     private RealisateurService service;
-
     @Mock
     private IRealisateurRepository repository;
-
     @Mock
     private IPersonneRepository personneRepository;
 
@@ -49,13 +47,10 @@ class RealisateurServiceTest {
             director.setId(person.getId());
             return director;
         });
-
         RealisateurDTO dto = new RealisateurDTO();
         dto.setIdentite("Submitted Name");
         dto.setIdImdb("nm0000001");
-
         RealisateurDTO result = service.save(dto);
-
         assertEquals("John Doe", result.getIdentite());
         verify(personneRepository, never()).save(any(Personne.class));
     }
@@ -65,7 +60,6 @@ class RealisateurServiceTest {
         Realisateur director = director();
         when(repository.findById(1L)).thenReturn(Optional.of(director));
         when(repository.save(director)).thenReturn(director);
-
         RealisateurDTO dto = new RealisateurDTO();
         dto.setId(1L);
         dto.setIdentite("Updated Name");
@@ -73,11 +67,8 @@ class RealisateurServiceTest {
         dto.setDateNaissance("1990-01-01");
         dto.setLieuNaissance("Lyon");
         dto.setUrl("https://example.com/profile");
-
         RealisateurDTO result = service.update(dto);
-
         assertEquals("Updated Name", result.getIdentite());
-        assertEquals("nm0000001", director.getPersonne().getNconst());
         assertEquals("nm0000001", director.getPersonne().getNconst());
         assertEquals("Lyon", director.getPersonne().getLieuNaissance());
         verify(repository).save(director);
@@ -90,7 +81,6 @@ class RealisateurServiceTest {
         RealisateurDTO dto = new RealisateurDTO();
         dto.setId(1L);
         dto.setIdImdb("nm0000002");
-
         assertThrows(exceptions.InvalidDataException.class, () -> service.update(dto));
         verify(repository, never()).save(any(Realisateur.class));
     }
@@ -100,7 +90,6 @@ class RealisateurServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.empty());
         RealisateurDTO dto = new RealisateurDTO();
         dto.setId(1L);
-
         assertThrows(EntityNotFoundException.class, () -> service.update(dto));
         verify(repository, never()).save(any());
     }
@@ -110,11 +99,9 @@ class RealisateurServiceTest {
         Realisateur director = director();
         when(repository.findById(1L)).thenReturn(Optional.of(director));
         when(repository.save(director)).thenThrow(new RuntimeException("Database error"));
-
         RealisateurDTO dto = new RealisateurDTO();
         dto.setId(1L);
         dto.setIdentite("Updated Name");
-
         ServiceException exception = assertThrows(ServiceException.class, () -> service.update(dto));
         assertEquals("Failed to update Realisateur: Database error", exception.getMessage());
     }

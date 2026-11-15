@@ -1,7 +1,7 @@
 package service;
 
+import com.example.imdbopen.actor.domain.Acteur;
 import com.example.imdbopen.film.domain.Film;
-import entities.business.personne.Acteur;
 import com.example.imdbopen.person.domain.Personne;
 import entities.business.role.Role;
 import persistence.repository.IActeurRepository;
@@ -22,13 +22,10 @@ import static org.mockito.Mockito.*;
 class RoleServiceTest {
     @InjectMocks
     private RoleService roleService;
-
     @Mock
     private IRoleRepository roleRepository;
-
     @Mock
     private IFilmRepository filmRepository;
-
     @Mock
     private IActeurRepository actorRepository;
 
@@ -43,7 +40,6 @@ class RoleServiceTest {
         Personne person = new Personne();
         person.setNconst("nm0000001");
         actor.setPersonne(person);
-
         when(filmRepository.findByImdb("tt0000001")).thenReturn(Optional.of(film));
         when(actorRepository.findByImdb("nm0000001")).thenReturn(Optional.of(actor));
         when(roleRepository.save(any(Role.class))).thenAnswer(invocation -> {
@@ -51,14 +47,11 @@ class RoleServiceTest {
             saved.setId(1L);
             return saved;
         });
-
         RoleDTO dto = new RoleDTO();
         dto.setRoleName("Admin");
         dto.setFilmId("tt0000001");
         dto.setActeurId("nm0000001");
-
         RoleDTO result = roleService.createRole(dto);
-
         assertEquals("Admin", result.getRoleName());
         assertEquals("tt0000001", result.getFilmId());
         assertEquals("nm0000001", result.getActeurId());
@@ -71,7 +64,6 @@ class RoleServiceTest {
         RoleDTO dto = new RoleDTO();
         dto.setFilmId("tt-missing");
         dto.setActeurId("nm0000001");
-
         assertThrows(exceptions.EntityNotFoundException.class, () -> roleService.createRole(dto));
         verify(roleRepository, never()).save(any(Role.class));
     }
@@ -82,12 +74,9 @@ class RoleServiceTest {
         role.setId(1L);
         when(roleRepository.findById(1L)).thenReturn(Optional.of(role));
         when(roleRepository.save(any(Role.class))).thenReturn(role);
-
         RoleDTO dto = new RoleDTO();
         dto.setRoleName("User");
-
         RoleDTO result = roleService.updateRole(1L, dto);
-
         assertEquals("User", result.getRoleName());
         verify(roleRepository).save(role);
     }
@@ -97,9 +86,7 @@ class RoleServiceTest {
         Role role = new Role();
         role.setId(1L);
         when(roleRepository.findById(1L)).thenReturn(Optional.of(role));
-
         roleService.deleteRole(1L);
-
         verify(roleRepository).delete(role);
     }
 }

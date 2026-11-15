@@ -1,6 +1,6 @@
 package com.example.imdbopen.film.domain;
 
-import entities.business.personne.Realisateur;
+import com.example.imdbopen.director.domain.Realisateur;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

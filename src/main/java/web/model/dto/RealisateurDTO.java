@@ -1,7 +1,7 @@
 package web.model.dto;
 
 import com.example.imdbopen.person.domain.Personne;
-import entities.business.personne.Realisateur;
+import com.example.imdbopen.director.domain.Realisateur;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

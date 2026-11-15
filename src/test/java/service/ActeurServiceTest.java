@@ -1,6 +1,6 @@
 package service;
 
-import entities.business.personne.Acteur;
+import com.example.imdbopen.actor.domain.Acteur;
 import com.example.imdbopen.person.domain.Personne;
 import persistence.repository.IActeurRepository;
 import persistence.repository.IPersonneRepository;
@@ -23,10 +23,8 @@ import static org.mockito.Mockito.*;
 class ActeurServiceTest {
     @InjectMocks
     private ActeurService acteurService;
-
     @Mock
     private IActeurRepository acteurRepository;
-
     @Mock
     private IPersonneRepository personneRepository;
 
@@ -37,7 +35,6 @@ class ActeurServiceTest {
     void createsActorAndPersistsCanonicalPersonWhenAbsent() {
         PersonneDTO personDto = personDto("John Doe", "01-01-1995");
         ActeurDTO dto = actorDto(personDto, "nm0000001");
-
         when(personneRepository.findByNconst("nm0000001")).thenReturn(Optional.empty());
         when(personneRepository.save(any(Personne.class))).thenAnswer(invocation -> {
             Personne person = invocation.getArgument(0);
@@ -51,7 +48,6 @@ class ActeurServiceTest {
         });
 
         ActeurDTO result = acteurService.createActeur(dto);
-
         assertEquals("John Doe", result.getPersonne().getIdentite());
         assertEquals("01-01-1995", result.getPersonne().getDateNaissance());
         assertEquals("1.80m", result.getTaille());
@@ -70,10 +66,8 @@ class ActeurServiceTest {
             actor.setId(existingPerson.getId());
             return actor;
         });
-
         ActeurDTO result = acteurService.createActeur(actorDto(
                 personDto("A different submitted name", "1995-01-01"), "nm0000001"));
-
         assertEquals("John Doe", result.getPersonne().getIdentite());
         verify(personneRepository, never()).save(any(Personne.class));
     }
@@ -86,15 +80,12 @@ class ActeurServiceTest {
         Acteur actor = new Acteur();
         actor.setId(1L);
         actor.setPersonne(person);
-
         when(acteurRepository.findById(1L)).thenReturn(Optional.of(actor));
         when(acteurRepository.save(actor)).thenReturn(actor);
-
         ActeurDTO dto = actorDto(personDto("Updated Name", "1991-02-03"), "nm0000001");
         dto.setTaille("1.80m");
 
         ActeurDTO result = acteurService.updateActeur(1L, dto);
-
         assertSame(person, actor.getPersonne());
         assertEquals("Updated Name", result.getPersonne().getIdentite());
         assertEquals("1991-02-03", result.getPersonne().getDateNaissance());
@@ -116,7 +107,6 @@ class ActeurServiceTest {
         actor.setId(1L);
         actor.setPersonne(person);
         when(acteurRepository.findById(1L)).thenReturn(Optional.of(actor));
-
         ActeurDTO dto = actorDto(personDto("John Doe", "1990-01-01"), "nm0000002");
         assertThrows(InvalidDataException.class, () -> acteurService.updateActeur(1L, dto));
         verify(acteurRepository, never()).save(any(Acteur.class));

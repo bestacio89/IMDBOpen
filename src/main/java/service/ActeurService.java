@@ -1,6 +1,6 @@
 package service;
 
-import entities.business.personne.Acteur;
+import com.example.imdbopen.actor.domain.Acteur;
 import com.example.imdbopen.person.domain.Personne;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import persistence.repository.IActeurRepository;
 import persistence.repository.IPersonneRepository;
-
 
 @Service
 public class ActeurService {
