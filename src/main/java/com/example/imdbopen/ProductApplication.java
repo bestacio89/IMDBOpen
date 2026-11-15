@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 @SpringBootApplication(scanBasePackages = {
         "com.example.imdbopen",
+        "com.example.demo",
         "entities",
         "utilities",
         "service",
