@@ -2,7 +2,7 @@ package utilities.csvextractors;
 
 
 import entities.business.Film.Film;
-import entities.business.genre.Genre;
+import com.example.imdbopen.genre.domain.Genre;
 import entities.business.pays.Pays;
 import service.FilmService;
 import service.GenreService;
