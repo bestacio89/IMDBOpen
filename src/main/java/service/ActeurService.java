@@ -1,7 +1,7 @@
 package service;
 
 import entities.business.personne.Acteur;
-import entities.business.personne.Personne;
+import com.example.imdbopen.person.domain.Personne;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import web.model.dto.ActeurDTO;

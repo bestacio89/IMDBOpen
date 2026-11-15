@@ -1,4 +1,4 @@
-package entities.business.personne;
+package com.example.imdbopen.person.domain;
 
 import org.junit.jupiter.api.Test;
 

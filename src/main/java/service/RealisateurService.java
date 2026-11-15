@@ -1,6 +1,6 @@
 package service;
 
-import entities.business.personne.Personne;
+import com.example.imdbopen.person.domain.Personne;
 import entities.business.personne.Realisateur;
 import persistence.repository.IPersonneRepository;
 import persistence.repository.IRealisateurRepository;

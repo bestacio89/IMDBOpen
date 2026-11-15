@@ -1,7 +1,7 @@
 package utilities.csvextractors;
 
 
-import entities.business.personne.Personne;
+import com.example.imdbopen.person.domain.Personne;
 import entities.business.personne.Realisateur;
 import persistence.repository.IRealisateurRepository;
 import persistence.repository.IPersonneRepository;

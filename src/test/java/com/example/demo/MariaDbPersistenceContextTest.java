@@ -6,7 +6,7 @@ import com.example.imdbopen.film.domain.FilmDirector;
 import com.example.imdbopen.film.domain.FilmDirectorId;
 import com.example.imdbopen.genre.domain.Genre;
 import entities.business.personne.Acteur;
-import entities.business.personne.Personne;
+import com.example.imdbopen.person.domain.Personne;
 import entities.business.personne.Realisateur;
 import entities.business.role.Role;
 import jakarta.persistence.EntityManager;

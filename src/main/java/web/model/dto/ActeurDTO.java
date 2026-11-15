@@ -1,7 +1,7 @@
 package web.model.dto;
 
 import entities.business.personne.Acteur;
-import entities.business.personne.BirthDateParser;
+import com.example.imdbopen.person.domain.BirthDateParser;
 import lombok.Data;
 
 import java.util.List;

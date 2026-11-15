@@ -1,7 +1,7 @@
 package persistence.repository;
 
 import entities.business.personne.Acteur;
-import entities.business.personne.Personne;
+import com.example.imdbopen.person.domain.Personne;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

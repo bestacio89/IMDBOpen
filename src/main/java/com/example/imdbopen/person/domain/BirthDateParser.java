@@ -1,4 +1,4 @@
-package entities.business.personne;
+package com.example.imdbopen.person.domain;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

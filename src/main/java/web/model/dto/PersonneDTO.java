@@ -2,7 +2,7 @@ package web.model.dto;
 
 
 
-import entities.business.personne.Personne;
+import com.example.imdbopen.person.domain.Personne;
 import lombok.Data;
 
 @Data

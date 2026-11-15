@@ -1,5 +1,7 @@
 package entities.business.personne;
 
+import com.example.imdbopen.person.domain.Personne;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
