@@ -52,7 +52,7 @@ public class FilmService {
                     && f.getPays().getName().equalsIgnoreCase(paysName)).collect(Collectors.toList());
         }
         if (StringUtils.hasText(genreName)) {
-            films = films.stream().filter(f -> Arrays.stream(f.getGenres().split(",\\\\s*"))
+            films = films.stream().filter(f -> Arrays.stream(f.getGenres().split(",\\s*"))
                     .anyMatch(genre -> genre.equalsIgnoreCase(genreName))).collect(Collectors.toList());
         }
         if (StringUtils.hasText(sortBy)) {
