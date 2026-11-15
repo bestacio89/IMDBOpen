@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -83,7 +82,6 @@ public class RealisateurExtractor {
                         Realisateur realisateur = new Realisateur();
                         realisateur.setPersonne(personne); // Ensure Realisateur has a valid Personne reference
                         realisateur.setIdImdb(imdbId);
-                        realisateur.setCreatedDate(LocalDateTime.now());
 
                         try {
                             realisateurRepository.save(realisateur);
