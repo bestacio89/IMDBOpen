@@ -1,6 +1,6 @@
 package com.example.imdbopen.genre.domain;
 
-import entities.business.Film.Film;
+import com.example.imdbopen.film.domain.Film;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
