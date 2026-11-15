@@ -1,7 +1,7 @@
 package service;
 
 import entities.business.Film.Film;
-import entities.business.genre.Genre;
+import com.example.imdbopen.genre.domain.Genre;
 import entities.business.pays.Pays;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;

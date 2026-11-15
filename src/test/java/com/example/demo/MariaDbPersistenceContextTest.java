@@ -4,7 +4,7 @@ import com.example.imdbopen.ProductApplication;
 import entities.business.Film.Film;
 import entities.business.Film.FilmDirector;
 import entities.business.Film.FilmDirectorId;
-import entities.business.genre.Genre;
+import com.example.imdbopen.genre.domain.Genre;
 import entities.business.personne.Acteur;
 import entities.business.personne.Personne;
 import entities.business.personne.Realisateur;

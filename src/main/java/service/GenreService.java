@@ -1,6 +1,6 @@
 package service;
 
-import entities.business.genre.Genre;
+import com.example.imdbopen.genre.domain.Genre;
 import persistence.repository.IGenreRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,6 @@
 package web.controller;
 
-import entities.business.genre.Genre;
+import com.example.imdbopen.genre.domain.Genre;
 import service.GenreService;
 import web.model.dto.GenreDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;

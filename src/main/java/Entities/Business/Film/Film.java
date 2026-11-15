@@ -1,6 +1,6 @@
 package entities.business.Film;
 
-import entities.business.genre.Genre;
+import com.example.imdbopen.genre.domain.Genre;
 import entities.business.pays.Pays;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

@@ -14,13 +14,22 @@ class LayerDependencyArchitectureTest {
     static void importApplicationClasses() {
         applicationClasses = new ClassFileImporter()
                 .importPackages("entities", "service", "persistence", "web",
-                        "exceptions", "utilities", "com.example.demo");
+                        "exceptions", "utilities", "com.example.demo", "com.example.imdbopen");
     }
 
     @Test
     void domainEntitiesDoNotDependOnApplicationOrDeliveryLayers() {
         noClasses()
                 .that().resideInAPackage("..entities..")
+                .should().dependOnClassesThat()
+                .resideInAnyPackage("service..", "web..", "persistence..")
+                .check(applicationClasses);
+    }
+
+    @Test
+    void modularDomainPackagesDoNotDependOnApplicationOrDeliveryLayers() {
+        noClasses()
+                .that().resideInAPackage("..domain..")
                 .should().dependOnClassesThat()
                 .resideInAnyPackage("service..", "web..", "persistence..")
                 .check(applicationClasses);

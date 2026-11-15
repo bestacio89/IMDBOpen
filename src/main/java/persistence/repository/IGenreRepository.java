@@ -1,6 +1,6 @@
 package persistence.repository;
 
-import entities.business.genre.Genre;
+import com.example.imdbopen.genre.domain.Genre;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

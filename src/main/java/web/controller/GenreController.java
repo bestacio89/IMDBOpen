@@ -1,7 +1,7 @@
 package web.controller;
 
 
-import entities.business.genre.Genre;
+import com.example.imdbopen.genre.domain.Genre;
 import service.GenreService;
 import web.model.dto.GenreDTO;
 import org.springframework.beans.factory.annotation.Autowired;

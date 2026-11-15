@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 
-import entities.business.genre.Genre;
+import com.example.imdbopen.genre.domain.Genre;
 import persistence.repository.IGenreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package entities.business.genre;
+package com.example.imdbopen.genre.domain;
 
 import entities.business.Film.Film;
 import jakarta.persistence.*;
