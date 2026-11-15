@@ -1,7 +1,7 @@
 package web.controller;
 
 
-import entities.business.pays.Pays;
+import com.example.imdbopen.country.domain.Pays;
 import service.PaysService;
 import web.model.dto.PaysDTO;
 import org.springframework.beans.factory.annotation.Autowired;

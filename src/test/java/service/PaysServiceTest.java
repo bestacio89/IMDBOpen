@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 
-import entities.business.pays.Pays;
+import com.example.imdbopen.country.domain.Pays;
 import persistence.repository.IPaysRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

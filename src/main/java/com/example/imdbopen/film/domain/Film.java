@@ -1,7 +1,7 @@
 package com.example.imdbopen.film.domain;
 
 import com.example.imdbopen.genre.domain.Genre;
-import entities.business.pays.Pays;
+import com.example.imdbopen.country.domain.Pays;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

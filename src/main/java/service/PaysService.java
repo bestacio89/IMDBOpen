@@ -1,7 +1,7 @@
 package service;
 
 
-import entities.business.pays.Pays;
+import com.example.imdbopen.country.domain.Pays;
 import persistence.repository.IPaysRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

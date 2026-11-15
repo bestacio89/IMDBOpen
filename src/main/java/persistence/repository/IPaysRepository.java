@@ -1,7 +1,7 @@
 package persistence.repository;
 
 
-import entities.business.pays.Pays;
+import com.example.imdbopen.country.domain.Pays;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

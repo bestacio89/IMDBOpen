@@ -9,6 +9,7 @@ import com.example.imdbopen.film.domain.FilmDirectorId;
 import com.example.imdbopen.genre.domain.Genre;
 import com.example.imdbopen.person.domain.Personne;
 import com.example.imdbopen.casting.domain.Role;
+import com.example.imdbopen.country.domain.Pays;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,7 @@ class MariaDbPersistenceContextTest {
         assertNotNull(entityManagerFactory.getMetamodel().entity(Acteur.class));
         assertNotNull(entityManagerFactory.getMetamodel().entity(Realisateur.class));
         assertNotNull(entityManagerFactory.getMetamodel().entity(Role.class));
+        assertNotNull(entityManagerFactory.getMetamodel().entity(Pays.class));
         assertNotNull(entityManagerFactory.getMetamodel().entity(FilmDirector.class));
     }
 
@@ -74,6 +76,24 @@ class MariaDbPersistenceContextTest {
         FilmDirector persisted = entityManager.find(FilmDirector.class,
                 new FilmDirectorId(film.getId(), director.getId()));
         assertNotNull(persisted);
+    }
+
+    @Test
+    @Transactional
+    void persistsFilmCountryAssociationThroughInternalForeignKey() {
+        Pays country = new Pays(null, "Architecture Test Country");
+        entityManager.persist(country);
+        Film film = new Film();
+        film.setImdb("tt9000003");
+        film.setNom("Country Mapping Verification");
+        film.setAnnee("2026");
+        film.setPays(country);
+        entityManager.persist(film);
+        entityManager.flush();
+        entityManager.clear();
+        Film persisted = entityManager.find(Film.class, film.getId());
+        assertNotNull(persisted);
+        assertEquals(country.getId(), persisted.getPays().getId());
     }
 
     @Test

@@ -1,4 +1,4 @@
-package entities.business.pays;
+package com.example.imdbopen.country.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
