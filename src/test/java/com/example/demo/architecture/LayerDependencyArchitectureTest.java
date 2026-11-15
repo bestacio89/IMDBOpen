@@ -21,7 +21,7 @@ class LayerDependencyArchitectureTest {
     void domainEntitiesDoNotDependOnApplicationOrDeliveryLayers() {
         noClasses().that().resideInAPackage("..entities..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("service..", "web..", "persistence..")
+                .resideInAnyPackage("service..", "web..", "persistence..", "..application..", "..api..")
                 .check(applicationClasses);
     }
 
@@ -29,7 +29,7 @@ class LayerDependencyArchitectureTest {
     void modularDomainPackagesDoNotDependOnApplicationOrDeliveryLayers() {
         noClasses().that().resideInAPackage("..domain..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("service..", "..application..", "web..", "persistence..")
+                .resideInAnyPackage("service..", "..application..", "..api..", "web..", "persistence..")
                 .check(applicationClasses);
     }
 
@@ -43,10 +43,10 @@ class LayerDependencyArchitectureTest {
     }
 
     @Test
-    void controllersDoNotDependOnPersistenceRepositories() {
-        noClasses().that().resideInAPackage("web.controller..")
+    void moduleApiControllersDoNotDependOnPersistenceRepositories() {
+        noClasses().that().resideInAnyPackage("..api..", "web.controller..")
                 .should().dependOnClassesThat()
-                .resideInAPackage("persistence.repository..")
+                .resideInAnyPackage("persistence.repository..", "..infrastructure.persistence..")
                 .check(applicationClasses);
     }
 
@@ -54,7 +54,7 @@ class LayerDependencyArchitectureTest {
     void applicationServicesDoNotDependOnHttpControllers() {
         noClasses().that().resideInAPackage("..application..")
                 .should().dependOnClassesThat()
-                .resideInAPackage("web.controller..")
+                .resideInAnyPackage("..api..", "web.controller..")
                 .check(applicationClasses);
     }
 
@@ -62,7 +62,7 @@ class LayerDependencyArchitectureTest {
     void persistenceRepositoriesDoNotDependOnDeliveryOrApplicationServices() {
         noClasses().that().resideInAPackage("persistence.repository..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("service..", "web..")
+                .resideInAnyPackage("service..", "web..", "..api..", "..application..")
                 .check(applicationClasses);
     }
 }

@@ -1,4 +1,4 @@
-package web.controller;
+package com.example.imdbopen.country.api;
 
 import com.example.imdbopen.country.application.PaysService;
 import com.example.imdbopen.country.domain.Pays;

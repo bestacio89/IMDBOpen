@@ -1,4 +1,4 @@
-package web.controller;
+package com.example.imdbopen.actor.api;
 
 import com.example.imdbopen.actor.application.ActeurService;
 import exceptions.EntityNotFoundException;

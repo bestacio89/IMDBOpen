@@ -1,4 +1,4 @@
-package web.controller;
+package com.example.imdbopen.film.api;
 
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;

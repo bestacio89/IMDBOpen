@@ -1,4 +1,4 @@
-package web.controller;
+package com.example.imdbopen.director.api;
 
 import com.example.imdbopen.director.application.RealisateurService;
 import web.model.dto.RealisateurDTO;

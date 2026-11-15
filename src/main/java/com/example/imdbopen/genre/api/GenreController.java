@@ -1,4 +1,4 @@
-package web.controller;
+package com.example.imdbopen.genre.api;
 
 
 import com.example.imdbopen.genre.domain.Genre;

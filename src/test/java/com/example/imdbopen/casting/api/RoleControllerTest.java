@@ -1,4 +1,4 @@
-package web.controller;
+package com.example.imdbopen.casting.api;
 
 import com.example.imdbopen.casting.application.RoleService;
 import web.model.dto.RoleDTO;
