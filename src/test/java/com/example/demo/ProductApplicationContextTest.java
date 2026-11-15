@@ -1,34 +1,96 @@
 package com.example.demo;
 
-import entities.business.Film.Film;
-import persistence.repository.IFilmRepository;
-import web.controller.FilmController;
+import com.example.imdbopen.ProductApplication;
+import com.example.imdbopen.actor.application.port.out.ActorStore;
+import com.example.imdbopen.country.application.port.out.CountryStore;
+import com.example.imdbopen.casting.application.port.out.RoleStore;
+import com.example.imdbopen.casting.application.port.out.FilmLookup;
+import com.example.imdbopen.casting.application.port.out.ActorLookup;
+import com.example.imdbopen.director.application.port.out.DirectorStore;
+import com.example.imdbopen.film.domain.Film;
+import com.example.imdbopen.film.application.port.out.FilmStore;
+import com.example.imdbopen.film.application.port.out.GenreCatalog;
+import com.example.imdbopen.film.application.port.out.CountryCatalog;
+import com.example.imdbopen.film.application.port.out.FilmDirectorStore;
+import com.example.imdbopen.film.application.port.out.DirectorLookup;
+import com.example.imdbopen.person.application.port.out.PersonStore;
+import com.example.imdbopen.film.api.FilmController;
+import com.example.imdbopen.ingestion.infrastructure.csv.ActorExtractor;
+import com.example.imdbopen.ingestion.infrastructure.csv.FilmExtractor;
+import com.example.imdbopen.ingestion.infrastructure.csv.FilmRealisateurExtractor;
+import com.example.imdbopen.ingestion.infrastructure.csv.RealisateurExtractor;
+import com.example.imdbopen.ingestion.infrastructure.csv.RoleExtractor;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@SpringBootTest(classes = ProductApplication.class)
 @ActiveProfiles("test")
 class ProductApplicationContextTest {
     @Autowired
     private ApplicationContext applicationContext;
-
     @Autowired
     private EntityManagerFactory entityManagerFactory;
-
     @Autowired
-    private IFilmRepository filmRepository;
+    private CountryStore countryStore;
+    @Autowired
+    private ActorStore actorStore;
+    @Autowired
+    private PersonStore personStore;
+    @Autowired
+    private DirectorStore directorStore;
+    @Autowired
+    private RoleStore roleStore;
+    @Autowired
+    private FilmLookup filmLookup;
+    @Autowired
+    private ActorLookup actorLookup;
+    @Autowired
+    private FilmStore filmStore;
+    @Autowired
+    private GenreCatalog genreCatalog;
+    @Autowired
+    private CountryCatalog countryCatalog;
+    @Autowired
+    private FilmDirectorStore filmDirectorStore;
+    @Autowired
+    private DirectorLookup directorLookup;
+    @Autowired
+    private ActorExtractor actorExtractor;
+    @Autowired
+    private FilmExtractor filmExtractor;
+    @Autowired
+    private FilmRealisateurExtractor filmRealisateurExtractor;
+    @Autowired
+    private RealisateurExtractor realisateurExtractor;
+    @Autowired
+    private RoleExtractor roleExtractor;
 
     @Test
-    void shouldDiscoverFilmEntityRepositoryAndController() {
-        assertNotNull(filmRepository);
+    void discoversModularStoresApiAndCsvAdapters() {
+        assertNotNull(countryStore);
+        assertNotNull(actorStore);
+        assertNotNull(personStore);
+        assertNotNull(directorStore);
+        assertNotNull(roleStore);
+        assertNotNull(filmLookup);
+        assertNotNull(actorLookup);
+        assertNotNull(filmStore);
+        assertNotNull(genreCatalog);
+        assertNotNull(countryCatalog);
+        assertNotNull(filmDirectorStore);
+        assertNotNull(directorLookup);
+        assertNotNull(actorExtractor);
+        assertNotNull(filmExtractor);
+        assertNotNull(filmRealisateurExtractor);
+        assertNotNull(realisateurExtractor);
+        assertNotNull(roleExtractor);
         assertNotNull(applicationContext.getBean(FilmController.class));
         assertTrue(entityManagerFactory.getMetamodel().getEntities().stream()
                 .anyMatch(entityType -> entityType.getJavaType().equals(Film.class)));

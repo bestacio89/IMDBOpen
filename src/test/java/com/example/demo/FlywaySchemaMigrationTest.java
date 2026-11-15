@@ -28,11 +28,13 @@ class FlywaySchemaMigrationTest {
         String username = System.getenv("IMDBOPEN_TEST_DB_USERNAME");
         String password = System.getenv("IMDBOPEN_TEST_DB_PASSWORD");
 
-        Flyway.configure()
+        Flyway flyway = Flyway.configure()
                 .dataSource(url, username, password)
                 .locations("classpath:db/migration")
-                .load()
-                .migrate();
+                .cleanDisabled(false)
+                .load();
+        flyway.clean();
+        flyway.migrate();
 
         try (Connection connection = DriverManager.getConnection(url, username, password);
              Statement statement = connection.createStatement()) {
