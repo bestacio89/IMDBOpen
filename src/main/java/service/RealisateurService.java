@@ -1,5 +1,6 @@
 package service;
 
+import entities.business.personne.Personne;
 import entities.business.personne.Realisateur;
 import persistence.repository.IRealisateurRepository;
 import web.model.dto.RealisateurDTO;
@@ -47,10 +48,14 @@ public class RealisateurService {
     public RealisateurDTO update(RealisateurDTO dto) {
         Realisateur existing = realisateurRepository.findById(dto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Realisateur not found with ID: " + dto.getId()));
-        Realisateur updated = dto.toEntity();
-        updated.setId(existing.getId());
+        Personne person = existing.getPersonne();
+        person.setIdentite(dto.getIdentite());
+        person.setDateNaissance(dto.getDateNaissance());
+        person.setLieuNaissance(dto.getLieuNaissance());
+        person.setUrl(dto.getUrl());
+        person.setNconst(dto.getIdImdb());
         try {
-            return RealisateurDTO.fromEntity(realisateurRepository.save(updated));
+            return RealisateurDTO.fromEntity(realisateurRepository.save(existing));
         } catch (Exception exception) {
             throw new ServiceException("Failed to update Realisateur: " + exception.getMessage());
         }
