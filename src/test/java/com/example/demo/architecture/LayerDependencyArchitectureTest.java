@@ -22,23 +22,23 @@ class LayerDependencyArchitectureTest {
         noClasses()
                 .that().resideInAPackage("..entities..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("..service..", "..web..", "..persistence..")
+                .resideInAnyPackage("service..", "web..", "persistence..")
                 .check(applicationClasses);
     }
 
     @Test
     void controllersDoNotDependOnPersistenceRepositories() {
         noClasses()
-                .that().resideInAPackage("..web.controller..")
+                .that().resideInAPackage("web.controller..")
                 .should().dependOnClassesThat()
-                .resideInAPackage("..persistence.repository..")
+                .resideInAPackage("persistence.repository..")
                 .check(applicationClasses);
     }
 
     @Test
     void applicationServicesDoNotDependOnHttpControllers() {
         noClasses()
-                .that().resideInAPackage("..service..")
+                .that().resideInAPackage("service..")
                 .should().dependOnClassesThat()
                 .resideInAPackage("..web.controller..")
                 .check(applicationClasses);
@@ -49,7 +49,7 @@ class LayerDependencyArchitectureTest {
         noClasses()
                 .that().resideInAPackage("..persistence.repository..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("..service..", "..web..")
+                .resideInAnyPackage("..service..", "web..")
                 .check(applicationClasses);
     }
 }
