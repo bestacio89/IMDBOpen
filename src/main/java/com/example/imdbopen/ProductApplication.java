@@ -26,7 +26,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.example.imdbopen.actor.infrastructure.persistence",
         "com.example.imdbopen.person.infrastructure.persistence",
         "com.example.imdbopen.director.infrastructure.persistence",
-        "com.example.imdbopen.casting.infrastructure.persistence"
+        "com.example.imdbopen.casting.infrastructure.persistence",
+        "com.example.imdbopen.film.infrastructure.persistence"
 })
 public class ProductApplication {
 

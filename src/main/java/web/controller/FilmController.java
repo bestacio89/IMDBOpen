@@ -2,7 +2,7 @@ package web.controller;
 
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
-import service.FilmService;
+import com.example.imdbopen.film.application.FilmService;
 
 import web.model.dto.FilmDTO;
 import web.model.generic.ApiResponse;

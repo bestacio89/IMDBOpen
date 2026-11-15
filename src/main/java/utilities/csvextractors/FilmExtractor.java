@@ -11,7 +11,7 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import service.FilmService;
+import com.example.imdbopen.film.application.FilmService;
 import web.model.dto.FilmDTO;
 
 import java.io.FileReader;

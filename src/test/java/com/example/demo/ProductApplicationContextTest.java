@@ -8,6 +8,9 @@ import com.example.imdbopen.casting.application.port.out.FilmLookup;
 import com.example.imdbopen.casting.application.port.out.ActorLookup;
 import com.example.imdbopen.director.application.port.out.DirectorStore;
 import com.example.imdbopen.film.domain.Film;
+import com.example.imdbopen.film.application.port.out.FilmStore;
+import com.example.imdbopen.film.application.port.out.GenreCatalog;
+import com.example.imdbopen.film.application.port.out.CountryCatalog;
 import com.example.imdbopen.person.application.port.out.PersonStore;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
@@ -46,6 +49,13 @@ class ProductApplicationContextTest {
     @Autowired
     private ActorLookup actorLookup;
 
+    @Autowired
+    private FilmStore filmStore;
+    @Autowired
+    private GenreCatalog genreCatalog;
+    @Autowired
+    private CountryCatalog countryCatalog;
+
     @Test
     void discoversFilmEntityRepositoryControllerAndModularStores() {
         assertNotNull(filmRepository);
@@ -56,6 +66,9 @@ class ProductApplicationContextTest {
         assertNotNull(roleStore);
         assertNotNull(filmLookup);
         assertNotNull(actorLookup);
+        assertNotNull(filmStore);
+        assertNotNull(genreCatalog);
+        assertNotNull(countryCatalog);
         assertNotNull(applicationContext.getBean(FilmController.class));
         assertTrue(entityManagerFactory.getMetamodel().getEntities().stream()
                 .anyMatch(entityType -> entityType.getJavaType().equals(Film.class)));

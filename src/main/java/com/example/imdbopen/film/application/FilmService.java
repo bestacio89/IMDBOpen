@@ -1,13 +1,13 @@
-package service;
+package com.example.imdbopen.film.application;
 
-import com.example.imdbopen.country.application.port.out.CountryStore;
 import com.example.imdbopen.country.domain.Pays;
+import com.example.imdbopen.film.application.port.out.CountryCatalog;
+import com.example.imdbopen.film.application.port.out.FilmStore;
+import com.example.imdbopen.film.application.port.out.GenreCatalog;
 import com.example.imdbopen.film.domain.Film;
-import com.example.imdbopen.genre.application.port.out.GenreStore;
 import com.example.imdbopen.genre.domain.Genre;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
-import persistence.repository.IFilmRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -22,19 +22,19 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 public class FilmService {
-    private final IFilmRepository filmRepository;
-    private final GenreStore genreStore;
-    private final CountryStore countryStore;
+    private final FilmStore filmStore;
+    private final GenreCatalog genreCatalog;
+    private final CountryCatalog countryCatalog;
 
-    public FilmService(IFilmRepository filmRepository, GenreStore genreStore, CountryStore countryStore) {
-        this.filmRepository = filmRepository;
-        this.genreStore = genreStore;
-        this.countryStore = countryStore;
+    public FilmService(FilmStore filmStore, GenreCatalog genreCatalog, CountryCatalog countryCatalog) {
+        this.filmStore = filmStore;
+        this.genreCatalog = genreCatalog;
+        this.countryCatalog = countryCatalog;
     }
 
     public List<FilmDTO> findFilmsWithFiltersAndSorting(String nom, String annee, String rating,
                                                         String paysName, String genreName, String sortBy) {
-        List<Film> films = filmRepository.findAll();
+        List<Film> films = filmStore.findAll();
         if (StringUtils.hasText(nom)) {
             films = films.stream().filter(f -> f.getNom() != null
                     && f.getNom().toLowerCase().contains(nom.toLowerCase())).collect(Collectors.toList());
@@ -88,11 +88,11 @@ public class FilmService {
     }
 
     public Optional<FilmDTO> findFilmByImdb(String imdb) {
-        return filmRepository.findByImdb(imdb).map(FilmDTO::fromEntity);
+        return filmStore.findByImdb(imdb).map(FilmDTO::fromEntity);
     }
 
     public List<FilmDTO> findFilmsByName(String nom) {
-        List<Film> films = filmRepository.findByNomContainingIgnoreCase(nom);
+        List<Film> films = filmStore.findByNomContainingIgnoreCase(nom);
         if (films.isEmpty()) {
             throw new EntityNotFoundException("No films found with name containing: " + nom);
         }
@@ -107,7 +107,7 @@ public class FilmService {
         Film film = filmDTO.toEntity();
         film.setPays(resolveCountry(filmDTO.getPays()));
         synchronizeGenres(film, filmDTO.getGenres());
-        return FilmDTO.fromEntity(filmRepository.save(film));
+        return FilmDTO.fromEntity(filmStore.save(film));
     }
 
     @Transactional
@@ -115,7 +115,7 @@ public class FilmService {
         if (filmDTO == null) {
             throw new InvalidDataException("Film data cannot be null");
         }
-        Film existing = filmRepository.findById(id)
+        Film existing = filmStore.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Film not found with ID: " + id));
         existing.setNom(filmDTO.getNom());
         existing.setAnnee(filmDTO.getAnnee());
@@ -126,14 +126,14 @@ public class FilmService {
         existing.setResume(filmDTO.getResume());
         existing.setPays(resolveCountry(filmDTO.getPays()));
         synchronizeGenres(existing, filmDTO.getGenres());
-        return FilmDTO.fromEntity(filmRepository.save(existing));
+        return FilmDTO.fromEntity(filmStore.save(existing));
     }
 
     @Transactional
     public void deleteFilm(Long id) {
-        Film film = filmRepository.findById(id)
+        Film film = filmStore.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Film not found with ID: " + id));
-        filmRepository.delete(film);
+        filmStore.delete(film);
     }
 
     private Pays resolveCountry(Pays requested) {
@@ -141,7 +141,7 @@ public class FilmService {
             return null;
         }
         if (requested.getId() != null) {
-            return countryStore.findById(requested.getId())
+            return countryCatalog.findById(requested.getId())
                     .orElseThrow(() -> new EntityNotFoundException(
                             "Country not found with ID: " + requested.getId()));
         }
@@ -168,23 +168,23 @@ public class FilmService {
 
     @Transactional
     public Genre findOrCreateGenre(String genreName) {
-        return genreStore.findByName(genreName)
-                .orElseGet(() -> genreStore.save(new Genre(null, genreName)));
+        return genreCatalog.findByName(genreName)
+                .orElseGet(() -> genreCatalog.save(new Genre(null, genreName)));
     }
 
     @Transactional
     public Pays findOrCreatePays(String paysName) {
-        return countryStore.findByName(paysName)
-                .orElseGet(() -> countryStore.save(new Pays(null, paysName)));
+        return countryCatalog.findByName(paysName)
+                .orElseGet(() -> countryCatalog.save(new Pays(null, paysName)));
     }
 
     @Transactional
     public void saveAll(List<Film> films) {
-        filmRepository.saveAll(films);
+        filmStore.saveAll(films);
     }
 
     @Transactional
     public void save(Film film) {
-        filmRepository.saveAndFlush(film);
+        filmStore.saveAndFlush(film);
     }
 }
