@@ -46,7 +46,9 @@ public class Personne implements Entities.generic.IEntity<Long> {
 
     public String getIdentite() { return name; }
     public void setIdentite(String value) { this.name = value; }
-    public String getDateNaissance() { return birthDateSource; }
+    public String getDateNaissance() {
+        return birthDateSource != null ? birthDateSource : birthDate == null ? null : birthDate.toString();
+    }
     public void setDateNaissance(String value) {
         this.birthDateSource = value;
         this.birthDate = null;

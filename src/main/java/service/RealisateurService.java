@@ -1,79 +1,66 @@
 package service;
 
-
 import entities.business.personne.Realisateur;
 import persistence.repository.IRealisateurRepository;
 import web.model.dto.RealisateurDTO;
 import exceptions.EntityNotFoundException;
 import exceptions.ServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class RealisateurService {
-
     private final IRealisateurRepository realisateurRepository;
 
-    @Autowired
     public RealisateurService(IRealisateurRepository realisateurRepository) {
         this.realisateurRepository = realisateurRepository;
     }
 
     public List<RealisateurDTO> findAll() {
-        return realisateurRepository.findAll().stream()
-                .map(RealisateurDTO::fromEntity)
+        return realisateurRepository.findAll().stream().map(RealisateurDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
     public Optional<RealisateurDTO> findById(Long id) {
-        return realisateurRepository.findById(id)
-                .map(RealisateurDTO::fromEntity)
-                .or(() -> {
-                    throw new EntityNotFoundException("Realisateur not found with ID: " + id);
-                });
+        return realisateurRepository.findById(id).map(RealisateurDTO::fromEntity);
     }
 
     public Optional<RealisateurDTO> findByIdImdb(String idImdb) {
-        // Retrieve the Realisateur entity wrapped in an Optional
-        Optional<Realisateur> realisateurOpt = realisateurRepository.findByIdImdb(idImdb);
-
-        // Convert the Realisateur entity to RealisateurDTO if present
-        return realisateurOpt.map(RealisateurDTO::fromEntity);
+        return realisateurRepository.findByIdImdb(idImdb).map(RealisateurDTO::fromEntity);
     }
 
-    public RealisateurDTO save(RealisateurDTO realisateurDTO) {
+    @Transactional
+    public RealisateurDTO save(RealisateurDTO dto) {
         try {
-            Realisateur realisateur = realisateurDTO.toEntity();
-            return RealisateurDTO.fromEntity(realisateurRepository.save(realisateur));
-        } catch (Exception e) {
-            throw new ServiceException("Failed to save Realisateur: " + e.getMessage());
+            return RealisateurDTO.fromEntity(realisateurRepository.save(dto.toEntity()));
+        } catch (Exception exception) {
+            throw new ServiceException("Failed to save Realisateur: " + exception.getMessage());
         }
     }
 
-    public RealisateurDTO update(RealisateurDTO realisateurDTO) {
-        if (realisateurRepository.existsById(realisateurDTO.getId())) {
-            try {
-                Realisateur realisateur = realisateurDTO.toEntity();
-                return RealisateurDTO.fromEntity(realisateurRepository.save(realisateur));
-            } catch (Exception e) {
-                throw new ServiceException("Failed to update Realisateur: " + e.getMessage());
-            }
-        } else {
-            throw new EntityNotFoundException("Realisateur not found with ID: " + realisateurDTO.getId());
+    @Transactional
+    public RealisateurDTO update(RealisateurDTO dto) {
+        Realisateur existing = realisateurRepository.findById(dto.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Realisateur not found with ID: " + dto.getId()));
+        Realisateur updated = dto.toEntity();
+        updated.setId(existing.getId());
+        try {
+            return RealisateurDTO.fromEntity(realisateurRepository.save(updated));
+        } catch (Exception exception) {
+            throw new ServiceException("Failed to update Realisateur: " + exception.getMessage());
         }
     }
 
+    @Transactional
     public void deleteById(Long id) {
-        if (realisateurRepository.existsById(id)) {
-            realisateurRepository.deleteById(id);
-        } else {
+        if (!realisateurRepository.existsById(id)) {
             throw new EntityNotFoundException("Realisateur not found with ID: " + id);
         }
+        realisateurRepository.deleteById(id);
     }
-
-
 }

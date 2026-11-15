@@ -15,7 +15,7 @@ public class Realisateur {
     private Long id;
 
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "person_id", nullable = false, foreignKey = @ForeignKey(name = "fk_director_person"))
     private Personne personne;
 
