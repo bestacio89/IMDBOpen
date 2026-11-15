@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.imdbopen.ProductApplication;
 import entities.business.Film.Film;
 import entities.business.Film.FilmDirector;
 import entities.business.Film.FilmDirectorId;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(properties = {
+@SpringBootTest(classes = ProductApplication.class, properties = {
         "spring.datasource.url=${IMDBOPEN_TEST_DB_URL}",
         "spring.datasource.username=${IMDBOPEN_TEST_DB_USERNAME}",
         "spring.datasource.password=${IMDBOPEN_TEST_DB_PASSWORD}",
