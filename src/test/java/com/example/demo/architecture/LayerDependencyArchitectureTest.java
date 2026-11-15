@@ -19,8 +19,7 @@ class LayerDependencyArchitectureTest {
 
     @Test
     void domainEntitiesDoNotDependOnApplicationOrDeliveryLayers() {
-        noClasses()
-                .that().resideInAPackage("..entities..")
+        noClasses().that().resideInAPackage("..entities..")
                 .should().dependOnClassesThat()
                 .resideInAnyPackage("service..", "web..", "persistence..")
                 .check(applicationClasses);
@@ -28,26 +27,24 @@ class LayerDependencyArchitectureTest {
 
     @Test
     void modularDomainPackagesDoNotDependOnApplicationOrDeliveryLayers() {
-        noClasses()
-                .that().resideInAPackage("..domain..")
+        noClasses().that().resideInAPackage("..domain..")
                 .should().dependOnClassesThat()
                 .resideInAnyPackage("service..", "web..", "persistence..")
                 .check(applicationClasses);
     }
 
-
     @Test
     void applicationServicesDoNotDependOnSpringDataOrPersistenceAdapters() {
         noClasses().that().resideInAPackage("..application..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("org.springframework.data..", "..infrastructure.persistence..")
+                .resideInAnyPackage("org.springframework.data..",
+                        "..infrastructure.persistence..", "persistence.repository..")
                 .check(applicationClasses);
     }
 
     @Test
     void controllersDoNotDependOnPersistenceRepositories() {
-        noClasses()
-                .that().resideInAPackage("web.controller..")
+        noClasses().that().resideInAPackage("web.controller..")
                 .should().dependOnClassesThat()
                 .resideInAPackage("persistence.repository..")
                 .check(applicationClasses);
@@ -55,8 +52,7 @@ class LayerDependencyArchitectureTest {
 
     @Test
     void applicationServicesDoNotDependOnHttpControllers() {
-        noClasses()
-                .that().resideInAPackage("service..")
+        noClasses().that().resideInAPackage("service..")
                 .should().dependOnClassesThat()
                 .resideInAPackage("web.controller..")
                 .check(applicationClasses);
@@ -64,8 +60,7 @@ class LayerDependencyArchitectureTest {
 
     @Test
     void persistenceRepositoriesDoNotDependOnDeliveryOrApplicationServices() {
-        noClasses()
-                .that().resideInAPackage("persistence.repository..")
+        noClasses().that().resideInAPackage("persistence.repository..")
                 .should().dependOnClassesThat()
                 .resideInAnyPackage("service..", "web..")
                 .check(applicationClasses);

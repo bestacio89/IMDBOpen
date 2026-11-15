@@ -22,7 +22,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = {
         "persistence.repository",
         "com.example.imdbopen.genre.infrastructure.persistence",
-        "com.example.imdbopen.country.infrastructure.persistence"
+        "com.example.imdbopen.country.infrastructure.persistence",
+        "com.example.imdbopen.actor.infrastructure.persistence",
+        "com.example.imdbopen.person.infrastructure.persistence"
 })
 public class ProductApplication {
 
