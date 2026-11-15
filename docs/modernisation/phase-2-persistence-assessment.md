@@ -1,10 +1,23 @@
 # Phase 2 — Persistence and database foundations assessment
 
+> **Historical baseline report.** The observations below describe the repository before Phase 2 implementation. The source dump was subsequently audited, the canonical schema was approved, and PR #27 implements Flyway, the aligned JPA model and MariaDB verification. This report is retained to preserve the original findings.
+
+## Implementation outcome
+
+- Flyway is now the single schema authority for clean MariaDB databases.
+- Hibernate uses `ddl-auto=validate`; the manual `DatabaseInitializer` and its startup import path have been removed.
+- JPA entities now map the canonical `film`, `country`, `genre`, `person`, `actor`, `director`, `film_genre`, `film_director` and `film_cast` structures.
+- IMDb `tconst`/`nconst` identifiers resolve to internal foreign keys; actor and director roles share one `person` identity.
+- Principal-cast state is stored on the existing `film_cast` row; the separate persistence representation was removed.
+- GitHub Actions provisions MariaDB 11.4 as a service. The CI suite verifies migration execution, Hibernate schema validation and relational persistence; this is not a Testcontainers setup.
+- CSV ingestion remains a separate subsequent phase and is not run at application startup.
+
+
 **Assessment baseline:** `develop` at `409498ea71b95c8c3f5b9da05bf9bc3725aa91cc`  
 **Assessment branch:** `chore/phase-2-persistence-foundations`  
 **Scope:** source-controlled persistence configuration, JPA mappings, schema bootstrap, repository contracts, seed/import paths, Docker database configuration and test configuration.
 
-## Executive finding
+## Executive finding (at assessment baseline)
 
 The repository does not currently contain one authoritative, reproducible database schema.
 
@@ -18,7 +31,7 @@ The effective schema is being assembled from multiple, conflicting mechanisms:
 
 The checked-in SQL dump `src/main/resources/db/dump-testimdb.sql` is populated (8,254,307 bytes). A CI audit confirms 11 `CREATE TABLE` statements and 15 `INSERT INTO` statements. It is therefore a potentially valuable schema-and-data baseline, not an empty placeholder. Its DDL, data coverage, export provenance and relationship constraints must be inspected before treating it as authoritative for any live database.
 
-**Decision:** do not activate Liquibase, introduce Flyway, switch Hibernate to `validate`, drop tables, rename columns, or rewrite entity relationships until the checked-in dump has been fully reconciled with the JPA mappings and manual DDL. If the deployed database must be preserved, compare its live schema and data state with this repository export before defining adoption.
+**Baseline decision:** do not activate Liquibase, introduce Flyway, switch Hibernate to `validate`, drop tables, rename columns, or rewrite entity relationships until the checked-in dump has been fully reconciled with the JPA mappings and manual DDL. This gate was completed by the CI dataset audit and the target-model decision documented below. The implementation deliberately targets a clean database; any non-empty deployed database still requires a separate backup-first adoption procedure.
 
 ## Current schema authority and startup behaviour
 
@@ -155,7 +168,7 @@ If the deployed database is disposable and contains no data to preserve, the cle
 
 The canonical target model is documented in [phase-2-target-data-model.md](phase-2-target-data-model.md). It resolves the source-level identifier ambiguity and records the intended film, person, actor, director, genre, cast-credit and country relationships.
 
-The implementation direction is now:
+The implementation now provides:
 
 - Flyway SQL migrations as the single schema authority for MariaDB.
 - Generated internal `BIGINT` primary keys, with IMDb `tconst`/`nconst` values retained as unique external identifiers.
@@ -164,4 +177,4 @@ The implementation direction is now:
 - One film/actor credit with principal-cast state and zero or more character-role rows.
 - Hibernate schema validation after migration, not automatic schema mutation.
 
-This target contract is for a clean database. Existing non-empty database adoption remains a separate, backup-first operation; the application must not guess a baseline or silently mutate an unknown schema. Local MariaDB verification is not available in this workflow, so migration correctness will be established with automated MariaDB integration tests in CI before the implementation checkpoint is considered complete.
+This target contract is for a clean database. Existing non-empty database adoption remains a separate, backup-first operation; the application must not guess a baseline or silently mutate an unknown schema. GitHub Actions now provisions MariaDB 11.4 and verifies Flyway migration, JPA schema validation and persistence operations against that real database.
