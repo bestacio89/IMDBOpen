@@ -18,7 +18,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "web",
         "exceptions"
 })
-@EntityScan(basePackages = "entities")
+@EntityScan(basePackages = {"entities", "com.example.imdbopen"})
 @EnableJpaRepositories(basePackages = "persistence.repository")
 public class ProductApplication {
 
