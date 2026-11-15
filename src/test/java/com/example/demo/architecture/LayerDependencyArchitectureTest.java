@@ -29,7 +29,7 @@ class LayerDependencyArchitectureTest {
     void modularDomainPackagesDoNotDependOnApplicationOrDeliveryLayers() {
         noClasses().that().resideInAPackage("..domain..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("service..", "web..", "persistence..")
+                .resideInAnyPackage("service..", "..application..", "web..", "persistence..")
                 .check(applicationClasses);
     }
 
@@ -52,7 +52,7 @@ class LayerDependencyArchitectureTest {
 
     @Test
     void applicationServicesDoNotDependOnHttpControllers() {
-        noClasses().that().resideInAPackage("service..")
+        noClasses().that().resideInAPackage("..application..")
                 .should().dependOnClassesThat()
                 .resideInAPackage("web.controller..")
                 .check(applicationClasses);
