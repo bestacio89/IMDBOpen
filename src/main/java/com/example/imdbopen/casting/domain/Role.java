@@ -1,4 +1,4 @@
-package entities.business.role;
+package com.example.imdbopen.casting.domain;
 
 import com.example.imdbopen.actor.domain.Acteur;
 import com.example.imdbopen.film.domain.Film;

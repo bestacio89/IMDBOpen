@@ -1,7 +1,7 @@
 package utilities.csvextractors;
 
 
-import entities.business.role.Role;
+import com.example.imdbopen.casting.domain.Role;
 import persistence.repository.IActeurRepository;
 import persistence.repository.IFilmRepository;
 import persistence.repository.IRoleRepository;

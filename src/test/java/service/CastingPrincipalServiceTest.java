@@ -1,6 +1,6 @@
 package service;
 
-import entities.business.role.Role;
+import com.example.imdbopen.casting.domain.Role;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import persistence.repository.IRoleRepository;

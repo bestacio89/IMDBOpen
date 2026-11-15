@@ -1,7 +1,7 @@
 package web.model.dto;
 
 
-import entities.business.role.Role;
+import com.example.imdbopen.casting.domain.Role;
 import lombok.Getter;
 import lombok.Setter;
 
