@@ -2,30 +2,29 @@ package com.example.imdbopen.country.application;
 
 import com.example.imdbopen.country.application.port.out.CountryStore;
 import com.example.imdbopen.country.domain.Pays;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class PaysServiceTest {
     @Mock
     private CountryStore countryStore;
 
     @InjectMocks
     private PaysService paysService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void findByIdDelegatesToStore() {
@@ -51,15 +50,17 @@ class PaysServiceTest {
 
     @Test
     void findOrCreatePersistsMissingCountry() {
-        Pays country = new Pays(null, "France");
         Pays persisted = new Pays(1L, "France");
         when(countryStore.findByName("France")).thenReturn(Optional.empty());
-        when(countryStore.save(country)).thenReturn(persisted);
+        when(countryStore.save(any(Pays.class))).thenReturn(persisted);
 
         Pays result = paysService.findOrCreatePays("France");
 
         assertSame(persisted, result);
-        verify(countryStore).save(country);
+        ArgumentCaptor<Pays> countryCaptor = ArgumentCaptor.forClass(Pays.class);
+        verify(countryStore).save(countryCaptor.capture());
+        assertEquals("France", countryCaptor.getValue().getName());
+        assertNull(countryCaptor.getValue().getId());
     }
 
     @Test
