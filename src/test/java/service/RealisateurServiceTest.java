@@ -1,144 +1,142 @@
 package service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-
 import entities.business.personne.Personne;
 import entities.business.personne.Realisateur;
 import persistence.repository.IPersonneRepository;
 import persistence.repository.IRealisateurRepository;
 import web.model.dto.RealisateurDTO;
+import exceptions.EntityNotFoundException;
+import exceptions.ServiceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import exceptions.*;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class RealisateurServiceTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+class RealisateurServiceTest {
     @InjectMocks
-    private RealisateurService realisateurService;
+    private RealisateurService service;
 
     @Mock
-    private IRealisateurRepository realisateurRepository;
+    private IRealisateurRepository repository;
 
     @Mock
     private IPersonneRepository personneRepository;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    void setUp() { MockitoAnnotations.openMocks(this); }
 
     @Test
-    void testFindAll() {
-        Realisateur realisateur = new Realisateur();
-        when(realisateurRepository.findAll()).thenReturn(Stream.of(realisateur).collect(Collectors.toList()));
-
-        List<RealisateurDTO> result = realisateurService.findAll();
-        assertNotNull(result);
+    void findsAllDirectors() {
+        when(repository.findAll()).thenReturn(List.of(director()));
+        List<RealisateurDTO> result = service.findAll();
         assertEquals(1, result.size());
-        verify(realisateurRepository, times(1)).findAll();
+        assertEquals("John Doe", result.get(0).getIdentite());
     }
 
-
-
-
     @Test
-    void testUpdate_Success() {
-        // Arrange
-        Personne personne = new Personne();
-        personne.setIdentite("John Doe");
-        personne.setDateNaissance("1990-01-01");
-        personne.setLieuNaissance("Paris, France");
-        personne.setUrl("http://example.com/johndoe");
+    void reusesExistingPersonWhenCreatingDirectorForExistingActorIdentity() {
+        Personne person = person();
+        when(personneRepository.findByNconst("nm0000001")).thenReturn(Optional.of(person));
+        when(repository.save(any(Realisateur.class))).thenAnswer(invocation -> {
+            Realisateur director = invocation.getArgument(0);
+            director.setId(person.getId());
+            return director;
+        });
 
-        Realisateur existingRealisateur = new Realisateur();
-        existingRealisateur.setId(1L);
-        existingRealisateur.setIdImdb("nm0000001");
-        existingRealisateur.setPersonne(personne);
+        RealisateurDTO dto = new RealisateurDTO();
+        dto.setIdentite("Submitted Name");
+        dto.setIdImdb("nm0000001");
 
-        RealisateurDTO realisateurDTO = new RealisateurDTO();
-        realisateurDTO.setId(1L);
-        realisateurDTO.setIdentite("Updated Identite");
-        realisateurDTO.setIdImdb("nm0000001");
-        // Add other necessary fields if required
+        RealisateurDTO result = service.save(dto);
 
-        when(realisateurRepository.existsById(1L)).thenReturn(true);
-        when(realisateurRepository.save(any(Realisateur.class))).thenReturn(existingRealisateur);
-
-        // Act
-        RealisateurDTO result = realisateurService.update(realisateurDTO);
-
-        // Assert
-        assertNotNull(result);
         assertEquals("John Doe", result.getIdentite());
-        assertEquals("nm0000001", result.getIdImdb());
-        verify(realisateurRepository, times(1)).save(any(Realisateur.class));
+        verify(personneRepository, never()).save(any(Personne.class));
     }
 
     @Test
-    void testUpdate_NotFound() {
-        // Arrange
-        RealisateurDTO realisateurDTO = new RealisateurDTO();
-        realisateurDTO.setId(1L);
-        realisateurDTO.setIdentite("Updated Identite");
-        realisateurDTO.setIdImdb("nm0000001");
+    void updatesExistingPersonWithoutReplacingSharedIdentity() {
+        Realisateur director = director();
+        when(repository.findById(1L)).thenReturn(Optional.of(director));
+        when(repository.save(director)).thenReturn(director);
 
-        when(realisateurRepository.existsById(1L)).thenReturn(false);
+        RealisateurDTO dto = new RealisateurDTO();
+        dto.setId(1L);
+        dto.setIdentite("Updated Name");
+        dto.setIdImdb("nm0000001");
+        dto.setDateNaissance("1990-01-01");
+        dto.setLieuNaissance("Lyon");
+        dto.setUrl("https://example.com/profile");
 
-        // Act & Assert
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
-            realisateurService.update(realisateurDTO);
-        });
-        assertEquals("Realisateur not found with ID: 1", thrown.getMessage());
-        verify(realisateurRepository, times(0)).save(any(Realisateur.class));
+        RealisateurDTO result = service.update(dto);
+
+        assertEquals("Updated Name", result.getIdentite());
+        assertEquals("nm0000001", director.getPersonne().getNconst());
+        assertEquals("nm0000001", director.getPersonne().getNconst());
+        assertEquals("Lyon", director.getPersonne().getLieuNaissance());
+        verify(repository).save(director);
     }
 
     @Test
-    void testUpdate_Failure() {
-        // Arrange
-        Personne personne = new Personne();
-        personne.setIdentite("John Doe");
-        personne.setDateNaissance("1990-01-01");
-        personne.setLieuNaissance("Paris, France");
-        personne.setUrl("http://example.com/johndoe");
+    void rejectsChangingAnExistingDirectorExternalIdentifier() {
+        Realisateur director = director();
+        when(repository.findById(1L)).thenReturn(Optional.of(director));
+        RealisateurDTO dto = new RealisateurDTO();
+        dto.setId(1L);
+        dto.setIdImdb("nm0000002");
 
-        Realisateur realisateur = new Realisateur();
-        realisateur.setId(1L);
-        realisateur.setIdImdb("nm0000001");
-        realisateur.setPersonne(personne);
-
-        RealisateurDTO realisateurDTO = new RealisateurDTO();
-        realisateurDTO.setId(1L);
-        realisateurDTO.setIdentite("Updated Identite");
-        realisateurDTO.setIdImdb("nm0000001");
-
-        when(realisateurRepository.existsById(1L)).thenReturn(true);
-        when(realisateurRepository.save(any(Realisateur.class))).thenThrow(new RuntimeException("Database error"));
-
-        // Act & Assert
-        ServiceException thrown = assertThrows(ServiceException.class, () -> {
-            realisateurService.update(realisateurDTO);
-        });
-        assertEquals("Failed to update Realisateur: Database error", thrown.getMessage());
-        verify(realisateurRepository, times(1)).save(any(Realisateur.class));
+        assertThrows(exceptions.InvalidDataException.class, () -> service.update(dto));
+        verify(repository, never()).save(any(Realisateur.class));
     }
 
+    @Test
+    void rejectsUpdateWhenDirectorDoesNotExist() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+        RealisateurDTO dto = new RealisateurDTO();
+        dto.setId(1L);
 
-
+        assertThrows(EntityNotFoundException.class, () -> service.update(dto));
+        verify(repository, never()).save(any());
+    }
 
     @Test
-    void testDeleteById() {
-        when(realisateurRepository.existsById(1L)).thenReturn(true);
+    void wrapsPersistenceFailureDuringUpdate() {
+        Realisateur director = director();
+        when(repository.findById(1L)).thenReturn(Optional.of(director));
+        when(repository.save(director)).thenThrow(new RuntimeException("Database error"));
 
-        realisateurService.deleteById(1L);
-        verify(realisateurRepository, times(1)).deleteById(1L);
+        RealisateurDTO dto = new RealisateurDTO();
+        dto.setId(1L);
+        dto.setIdentite("Updated Name");
+
+        ServiceException exception = assertThrows(ServiceException.class, () -> service.update(dto));
+        assertEquals("Failed to update Realisateur: Database error", exception.getMessage());
+    }
+
+    @Test
+    void deletesExistingDirector() {
+        when(repository.existsById(1L)).thenReturn(true);
+        service.deleteById(1L);
+        verify(repository).deleteById(1L);
+    }
+
+    private Realisateur director() {
+        Realisateur director = new Realisateur();
+        director.setId(1L);
+        director.setPersonne(person());
+        return director;
+    }
+
+    private Personne person() {
+        Personne person = new Personne("John Doe", "1990-01-01", "Paris, France", "https://example.com/profile");
+        person.setId(1L);
+        person.setNconst("nm0000001");
+        return person;
     }
 }

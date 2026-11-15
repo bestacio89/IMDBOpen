@@ -1,6 +1,5 @@
 package web.model.dto;
 
-
 import entities.business.personne.Personne;
 import entities.business.personne.Realisateur;
 import lombok.Data;
@@ -11,17 +10,15 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 public class RealisateurDTO {
-
-    private Long id; // ID of the Realisateur
+    private Long id;
     private String identite;
-    private String dateNaissance; // Birth date of the Realisateur
-    private String lieuNaissance; // Birth place of the Realisateur
-    private String url; // URL of the Realisateur's profile
-    private String idImdb; // IMDb ID of the Realisateur
-    private LocalDateTime createdDate; // Date when the Realisateur was created
-    private LocalDateTime updatedDate; // Date when the Realisateur was last updated
+    private String dateNaissance;
+    private String lieuNaissance;
+    private String url;
+    private String idImdb;
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
 
-    // Parameterized constructor
     public RealisateurDTO(Long id, String identite, String dateNaissance,
                           String lieuNaissance, String url, String idImdb,
                           LocalDateTime createdDate, LocalDateTime updatedDate) {
@@ -35,41 +32,19 @@ public class RealisateurDTO {
         this.updatedDate = updatedDate;
     }
 
-    // Static method to convert a Realisateur entity to a RealisateurDTO
     public static RealisateurDTO fromEntity(Realisateur realisateur) {
-        if (realisateur == null || realisateur.getPersonne() == null) {
-            return null;
-        }
-
-        return new RealisateurDTO(
-                realisateur.getId(),
-                realisateur.getPersonne().getIdentite(),
-                realisateur.getPersonne().getDateNaissance(),
-                realisateur.getPersonne().getLieuNaissance(),
-                realisateur.getPersonne().getUrl(),
-                realisateur.getIdImdb(),
-                realisateur.getCreatedDate(),
-                realisateur.getUpdatedDate()
-        );
+        if (realisateur == null || realisateur.getPersonne() == null) return null;
+        Personne person = realisateur.getPersonne();
+        return new RealisateurDTO(realisateur.getId(), person.getIdentite(), person.getDateNaissance(),
+                person.getLieuNaissance(), person.getUrl(), realisateur.getIdImdb(), null, null);
     }
 
-    // Convert RealisateurDTO to Realisateur entity
     public Realisateur toEntity() {
-        Realisateur realisateur = new Realisateur();
-        realisateur.setId(this.id);
-
-        // Create and set Personne object
-        Personne personne = new Personne();
-        personne.setIdentite(this.identite);
-        personne.setDateNaissance(this.dateNaissance);
-        personne.setLieuNaissance(this.lieuNaissance);
-        personne.setUrl(this.url);
-
-
-        realisateur.setIdImdb(this.idImdb);
-        realisateur.setCreatedDate(this.createdDate);
-        realisateur.setUpdatedDate(this.updatedDate);
-
-        return realisateur;
+        Personne person = new Personne(identite, dateNaissance, lieuNaissance, url);
+        person.setNconst(idImdb);
+        Realisateur director = new Realisateur();
+        director.setId(id);
+        director.setPersonne(person);
+        return director;
     }
 }

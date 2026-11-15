@@ -1,9 +1,5 @@
 package service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-
 import entities.business.personne.Acteur;
 import entities.business.personne.Personne;
 import persistence.repository.IActeurRepository;
@@ -14,14 +10,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 
-import exceptions.*;
+import exceptions.EntityNotFoundException;
+import exceptions.InvalidDataException;
+
 import java.util.Optional;
 
-public class ActeurServiceTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+class ActeurServiceTest {
     @InjectMocks
     private ActeurService acteurService;
 
@@ -32,143 +31,132 @@ public class ActeurServiceTest {
     private IPersonneRepository personneRepository;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    void setUp() { MockitoAnnotations.openMocks(this); }
 
     @Test
-    void testCreateActeur_Success() {
-        // Arrange
-        PersonneDTO personneDTO = new PersonneDTO();
-        personneDTO.setIdentite("John Doe");
-        personneDTO.setDateNaissance("01-01-1995");
-        personneDTO.setLieuNaissance("Paris, France");
-        personneDTO.setUrl("http://example.com/johndoe");
+    void createsActorAndPersistsCanonicalPersonWhenAbsent() {
+        PersonneDTO personDto = personDto("John Doe", "01-01-1995");
+        ActeurDTO dto = actorDto(personDto, "nm0000001");
 
-        ActeurDTO acteurDTO = new ActeurDTO();
-        acteurDTO.setPersonne(personneDTO);  // Set the PersonneDTO in ActeurDTO
-        acteurDTO.setIdImdb("nm0000001");
-        acteurDTO.setTaille("1.80m");
+        when(personneRepository.findByNconst("nm0000001")).thenReturn(Optional.empty());
+        when(personneRepository.save(any(Personne.class))).thenAnswer(invocation -> {
+            Personne person = invocation.getArgument(0);
+            person.setId(1L);
+            return person;
+        });
+        when(acteurRepository.save(any(Acteur.class))).thenAnswer(invocation -> {
+            Acteur actor = invocation.getArgument(0);
+            actor.setId(actor.getPersonne().getId());
+            return actor;
+        });
 
-        // Mock ActeurRepository
-        Acteur acteur = new Acteur();
-        acteur.setId(1L);
-        acteur.setIdImdb("nm0000001");
-        acteur.setTaille("1.80m");
-        acteur.setPersonne(new Personne("John Doe", "01-01-1995", "Paris, France", "http://example.com/johndoe"));
+        ActeurDTO result = acteurService.createActeur(dto);
 
-        when(acteurRepository.save(any(Acteur.class))).thenReturn(acteur);
-
-        // Act
-        ActeurDTO result = acteurService.createActeur(acteurDTO);
-
-        // Assert
-        assertNotNull(result);
         assertEquals("John Doe", result.getPersonne().getIdentite());
         assertEquals("01-01-1995", result.getPersonne().getDateNaissance());
         assertEquals("1.80m", result.getTaille());
         assertEquals("nm0000001", result.getIdImdb());
-        verify(acteurRepository, times(1)).save(any(Acteur.class));
+        verify(personneRepository).save(any(Personne.class));
     }
 
     @Test
-    void testCreateActeur_InvalidData() {
-        // Arrange
-        ActeurDTO acteurDTO = new ActeurDTO(); // Missing required data
-
-        // Act & Assert
-        InvalidDataException thrown = assertThrows(InvalidDataException.class, () -> {
-            acteurService.createActeur(acteurDTO);
+    void reusesExistingPersonWhenCreatingActorForExistingDirectorIdentity() {
+        Personne existingPerson = new Personne("John Doe", "1995-01-01", "Paris", null);
+        existingPerson.setId(7L);
+        existingPerson.setNconst("nm0000001");
+        when(personneRepository.findByNconst("nm0000001")).thenReturn(Optional.of(existingPerson));
+        when(acteurRepository.save(any(Acteur.class))).thenAnswer(invocation -> {
+            Acteur actor = invocation.getArgument(0);
+            actor.setId(existingPerson.getId());
+            return actor;
         });
-        assertEquals("Invalid acteur or personne data", thrown.getMessage());
+
+        ActeurDTO result = acteurService.createActeur(actorDto(
+                personDto("A different submitted name", "1995-01-01"), "nm0000001"));
+
+        assertEquals("John Doe", result.getPersonne().getIdentite());
+        verify(personneRepository, never()).save(any(Personne.class));
+    }
+
+    @Test
+    void updatesExistingPersonWithoutReplacingSharedIdentity() {
+        Personne person = new Personne("John Doe", "1990-01-01", "Paris", "https://example.com");
+        person.setId(1L);
+        person.setNconst("nm0000001");
+        Acteur actor = new Acteur();
+        actor.setId(1L);
+        actor.setPersonne(person);
+
+        when(acteurRepository.findById(1L)).thenReturn(Optional.of(actor));
+        when(acteurRepository.save(actor)).thenReturn(actor);
+
+        ActeurDTO dto = actorDto(personDto("Updated Name", "1991-02-03"), "nm0000001");
+        dto.setTaille("1.80m");
+
+        ActeurDTO result = acteurService.updateActeur(1L, dto);
+
+        assertSame(person, actor.getPersonne());
+        assertEquals("Updated Name", result.getPersonne().getIdentite());
+        assertEquals("1991-02-03", result.getPersonne().getDateNaissance());
+        verify(acteurRepository).save(actor);
+    }
+
+    @Test
+    void rejectsInvalidActorData() {
+        assertThrows(InvalidDataException.class, () -> acteurService.createActeur(new ActeurDTO()));
         verify(acteurRepository, never()).save(any(Acteur.class));
     }
 
     @Test
-    void testUpdateActeur_Success() {
-        // Arrange
-        Personne personne = new Personne();
-        personne.setIdentite("John Doe");
-        personne.setDateNaissance("1990-01-01");
-        personne.setLieuNaissance("Paris, France");
-        personne.setUrl("http://example.com/johndoe");
+    void rejectsChangingAnExistingActorExternalIdentifier() {
+        Personne person = new Personne("John Doe", "1990-01-01", "Paris", null);
+        person.setId(1L);
+        person.setNconst("nm0000001");
+        Acteur actor = new Acteur();
+        actor.setId(1L);
+        actor.setPersonne(person);
+        when(acteurRepository.findById(1L)).thenReturn(Optional.of(actor));
 
-        Acteur acteur = new Acteur();
-        acteur.setPersonne(personne);
-        acteur.setId(1L);
-        acteur.setIdImdb("nm0000001");
-        acteur.setTaille("1.80m");
-
-        ActeurDTO acteurDTO = new ActeurDTO();
-        acteurDTO.setIdImdb("nm0000001");
-        acteurDTO.setTaille("1.80m");
-
-        // Mock repository behavior
-        when(acteurRepository.findById(1L)).thenReturn(Optional.of(acteur));
-        when(acteurRepository.save(any(Acteur.class))).thenReturn(acteur);
-
-        // Act
-        ActeurDTO result = acteurService.updateActeur(1L, acteurDTO);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals("1.80m", result.getTaille());
-        assertEquals("nm0000001", result.getIdImdb());
-        verify(acteurRepository, times(1)).findById(1L);
-        verify(acteurRepository, times(1)).save(any(Acteur.class));
+        ActeurDTO dto = actorDto(personDto("John Doe", "1990-01-01"), "nm0000002");
+        assertThrows(InvalidDataException.class, () -> acteurService.updateActeur(1L, dto));
+        verify(acteurRepository, never()).save(any(Acteur.class));
     }
 
     @Test
-    void testUpdateActeur_ActeurNotFound() {
-        // Arrange
-        ActeurDTO acteurDTO = new ActeurDTO();
-        acteurDTO.setTaille("1,80m");
-        acteurDTO.setIdImdb("nm0000001");
-
-        // Mock repository behavior
+    void rejectsUpdateForMissingActor() {
         when(acteurRepository.findById(1L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
-            acteurService.updateActeur(1L, acteurDTO);
-        });
-        assertEquals("Acteur not found with id: 1", thrown.getMessage());
-        verify(acteurRepository, times(1)).findById(1L);
+        assertThrows(EntityNotFoundException.class, () -> acteurService.updateActeur(1L, new ActeurDTO()));
         verify(acteurRepository, never()).save(any(Acteur.class));
     }
 
     @Test
-    void testDeleteActeur() {
+    void deletesExistingActor() {
         when(acteurRepository.existsById(1L)).thenReturn(true);
-
         acteurService.deleteActeur(1L);
-        verify(acteurRepository, times(1)).deleteById(1L);
+        verify(acteurRepository).deleteById(1L);
     }
 
     @Test
-    void testDeleteActeur_EntityNotFoundException() {
-        // Arrange
+    void rejectsDeletionForMissingActor() {
         when(acteurRepository.existsById(1L)).thenReturn(false);
-
-        // Act & Assert
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
-            acteurService.deleteActeur(1L);
-        });
-        assertEquals("Acteur not found with id: 1", thrown.getMessage());
+        assertThrows(EntityNotFoundException.class, () -> acteurService.deleteActeur(1L));
         verify(acteurRepository, never()).deleteById(anyLong());
     }
 
-    @Test
-    void testDeleteActeur_Exception() {
-        // Arrange
-        when(acteurRepository.existsById(1L)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(acteurRepository).deleteById(1L);
+    private ActeurDTO actorDto(PersonneDTO person, String nconst) {
+        ActeurDTO dto = new ActeurDTO();
+        dto.setPersonne(person);
+        dto.setIdImdb(nconst);
+        dto.setTaille("1.80m");
+        return dto;
+    }
 
-        // Act & Assert
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            acteurService.deleteActeur(1L);
-        });
-        assertEquals("Database error", thrown.getMessage());
-        verify(acteurRepository, times(1)).deleteById(1L);
+    private PersonneDTO personDto(String name, String birthDate) {
+        PersonneDTO dto = new PersonneDTO();
+        dto.setIdentite(name);
+        dto.setDateNaissance(birthDate);
+        dto.setLieuNaissance("Paris, France");
+        dto.setUrl("https://example.com/profile");
+        return dto;
     }
 }

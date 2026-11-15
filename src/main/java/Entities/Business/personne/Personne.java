@@ -1,87 +1,59 @@
 package entities.business.personne;
 
-import java.time.LocalDateTime;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "personne")
-@Data
-@Builder
+@Table(name = "person", uniqueConstraints = @UniqueConstraint(name = "uk_person_nconst", columnNames = "nconst"))
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class Personne implements Entities.generic.IEntity<Long> {
-
+public class Personne {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "identite")
-    @Getter
-    @Setter
-    private String identite;
+    @Column(name = "nconst", nullable = false, length = 20)
+    private String nconst;
+
+    @Column(name = "name", nullable = false, length = 255)
+    private String name;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    @Column(name = "birth_date_source", length = 64)
+    private String birthDateSource;
+
+    @Column(name = "birth_place", length = 512)
+    private String birthPlace;
+
+    @Column(name = "profile_url", length = 1024)
+    private String profileUrl;
 
     public Personne(String identite, String dateNaissance, String lieuNaissance, String url) {
-        this.identite = identite;
-        this.dateNaissance = dateNaissance;
-        this.lieuNaissance = lieuNaissance;
-        this.url = url;
+        this.name = identite;
+        setDateNaissance(dateNaissance);
+        this.birthPlace = lieuNaissance;
+        this.profileUrl = url;
     }
 
-    @Getter
-    @Setter
-    @Column(name = "date_naissance")
-    private String dateNaissance;
-
-    @Getter
-    @Setter
-    @Column(name = "lieu_naissance")
-    private String lieuNaissance;
-
-    @Getter
-    @Setter
-    @Column(name = "url")
-    private String url;
-
-
-
-    @Override
-    public Long getId() {
-        return id;
+    public String getIdentite() { return name; }
+    public void setIdentite(String value) { this.name = value; }
+    public String getDateNaissance() {
+        return birthDateSource != null ? birthDateSource : birthDate == null ? null : birthDate.toString();
     }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
+    public void setDateNaissance(String value) {
+        this.birthDateSource = value;
+        this.birthDate = BirthDateParser.parse(value).orElse(null);
     }
+    public String getLieuNaissance() { return birthPlace; }
+    public void setLieuNaissance(String value) { this.birthPlace = value; }
+    public String getUrl() { return profileUrl; }
+    public void setUrl(String value) { this.profileUrl = value; }
 
-    @Override
-    public LocalDateTime getCreatedDate() {
-        return null;
-    }
-
-    @Override
-    public void setCreatedDate(LocalDateTime createdDate) {
-        // No implementation needed
-    }
-
-    @Override
-    public LocalDateTime getUpdatedDate() {
-        return null;
-    }
-
-    @Override
-    public void setUpdatedDate(LocalDateTime updatedDate) {
-        // No implementation needed
-    }
-
-    @Override
-    public boolean isDeleted() {
-        return false;
-    }
-
-    @Override
-    public void setDeleted(boolean deleted) {
-        // No implementation needed
-    }
 }

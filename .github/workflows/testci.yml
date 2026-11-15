@@ -20,6 +20,21 @@ jobs:
     name: Build and test (Java 21)
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: ci-only-root-password
+          MARIADB_DATABASE: imdbopen
+          MARIADB_USER: ci-only-user
+          MARIADB_PASSWORD: ci-only-application-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
       - name: Check out source
@@ -38,6 +53,10 @@ jobs:
         run: ./mvnw --version
 
       - name: Build and test
+        env:
+          IMDBOPEN_TEST_DB_URL: jdbc:mariadb://127.0.0.1:3306/imdbopen
+          IMDBOPEN_TEST_DB_USERNAME: ci-only-user
+          IMDBOPEN_TEST_DB_PASSWORD: ci-only-application-password
         run: ./mvnw --batch-mode --no-transfer-progress clean verify
 
       - name: Validate Docker Compose configuration

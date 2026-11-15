@@ -1,6 +1,6 @@
 # Phase 2 — Target persistence model
 
-**Status:** proposed target contract for the modernisation  
+**Status:** implemented clean-database target contract; see PR #27 for the implementation and verification  
 **Baseline:** `develop` at `409498ea71b95c8c3f5b9da05bf9bc3725aa91cc`
 
 ## Design objectives
@@ -41,7 +41,8 @@ This preserves stable database joins while retaining the source-system identifie
 
 - `tconst`: external IMDb title identifier.
 - `title`: source title.
-- `release_year`: nullable integer year, not a free-form string.
+- `release_year_source`: original source value, retained as `VARCHAR(32)`.
+- `release_year_start` / `release_year_end`: nullable `SMALLINT` bounds derived only when the source contains a recognisable year or year range.
 - `rating`: nullable decimal with one fractional digit.
 - `source_url`: nullable URL/path.
 - `filming_locations`: text, because source values can contain multiple locations.
@@ -59,7 +60,7 @@ The source CSV currently labels the country column `PAYS`; its exact business me
 - `birth_place`: nullable text.
 - `profile_url`: nullable URL/path.
 
-Actor and director are independent role tables referencing the same person identity. A person can therefore be both an actor and a director without duplicated biographical rows. Actor height remains a nullable source value until its unit and format are established; it must not be silently interpreted as centimetres.
+Actor and director are independent role tables referencing the same person identity. A person can therefore be both an actor and a director without duplicated biographical rows. Actor height is measured in metres in the audited source. Store valid values in `height_m DECIMAL(4,2)` and preserve the original text in `height_source` when the value is missing or malformed; do not convert it to centimetres.
 
 ### Cast and role semantics
 
@@ -135,14 +136,14 @@ The second CI profile pass established the following field semantics:
 - Film years have 175 distinct source values; 102 are not a single integer and appear as year ranges such as `1952�1953`. Preserve the original `release_year_source` and derive nullable `release_year_start` / `release_year_end` values. Do not coerce ranges to one integer or discard the source value.
 - Film ratings use both decimal points and decimal commas. Normalising the comma produces numeric values from 2.1 to 9.5; 46 values are `NA`. Store a nullable `DECIMAL(3,1)`, treating `NA` as null.
 - Actor heights are expressed in metres. 14,490 values are `NA`, nine are malformed or corrupted, and the remaining values parse numerically (observed range 0.48–2.93 m). Store nullable `DECIMAL(4,2)` metres and retain the source text for malformed values.
-- Birth dates contain missing sentinels, full English and French dates, partial dates without a year, and year-only values. The profile currently identifies 8,710 missing and 1,398 non-normalisable actor dates, plus 386 missing and 89 non-normalisable director dates. Store a nullable SQL `DATE` where parsing is unambiguous and preserve the original text in `birth_date_source`; do not invent missing day/month/year components.
+- Birth dates contain missing sentinels, full English and French dates, partial dates without a year, and year-only values. The profile currently identifies 8,710 missing and 1,398 non-normalisable actor dates, plus 386 missing and 89 non-normalisable director dates. Store a nullable SQL `DATE` where parsing is unambiguous and preserve the original text in `birth_date_source`; do not invent missing day/month/year components. Ambiguous numeric day/month values are deliberately left unparsed rather than guessed.
 - Fourteen film language values are the literal sentinel `None`; normalise those to SQL NULL. There are 40 distinct countries and 28 distinct genre tokens.
 - Film synopsis and character text already contain U+FFFD replacement characters. Preserve these as received and report them; recovery requires authoritative source data.
 
 Accordingly, the target schema should use:
 - `person.birth_date DATE NULL` plus `birth_date_source VARCHAR(64) NULL`;
 - `actor.height_m DECIMAL(4,2) NULL` plus `height_source VARCHAR(32) NULL` for malformed values;
-- `film.release_year_source VARCHAR(16) NOT NULL`, `release_year_start SMALLINT NULL`, `release_year_end SMALLINT NULL`;
+- `film.release_year_source VARCHAR(32) NOT NULL`, `release_year_start SMALLINT NULL`, `release_year_end SMALLINT NULL`;
 - `film.rating DECIMAL(3,1) NULL`, `film.language VARCHAR(100) NULL`, and a nullable synopsis;
 - explicit `country` and `genre` tables with unique names, plus the `film_genre` association.
 
@@ -151,5 +152,5 @@ Accordingly, the target schema should use:
 1. Introduce Flyway and the initial MariaDB SQL migration for a clean database.
 2. Align JPA entities with this contract and set Hibernate to `validate`.
 3. Remove `DatabaseInitializer` DDL and startup CSV import; migrations own schema only.
-4. Add MariaDB Testcontainers coverage for migration execution, mappings, FK constraints and uniqueness.
+4. Verify migrations and JPA mappings against a MariaDB 11.4 service provisioned by GitHub Actions; Testcontainers is not used because the runner's Docker daemon is unavailable to the test process.
 5. Rework CSV ingestion separately, resolving external IMDb identifiers to internal entities and reporting rejected rows.

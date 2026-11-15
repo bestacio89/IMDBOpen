@@ -1,78 +1,56 @@
 package entities.business.role;
 
+import entities.business.Film.Film;
+import entities.business.personne.Acteur;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "role")
+@Table(name = "film_cast", uniqueConstraints = @UniqueConstraint(name = "uk_film_cast_film_actor", columnNames = {"film_id", "actor_id"}))
+@Getter
+@Setter
+@NoArgsConstructor
 public class Role {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "film_id")
-    private String filmId; // ID in the film table, referenced as a String
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "film_id", nullable = false, foreignKey = @ForeignKey(name = "fk_film_cast_film"))
+    private Film film;
 
-    @Column(name = "acteur_id")
-    private String acteurId; // ID in the acteur table, referenced as a String
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "actor_id", nullable = false, foreignKey = @ForeignKey(name = "fk_film_cast_actor"))
+    private Acteur acteur;
 
-    @Setter
-    @Getter
-    @Column(name = "role_name")
+    @Column(name = "character_name", columnDefinition = "TEXT")
     private String roleName;
 
-    // Default constructor
-    public Role() {}
+    @Column(name = "is_principal", nullable = false)
+    private boolean principal;
 
-    // Parameterized constructor
+    @Transient
+    private String pendingFilmId;
+
+    @Transient
+    private String pendingActeurId;
+
     public Role(String roleName, String filmId, String acteurId) {
         this.roleName = roleName;
-        this.filmId = filmId;
-        this.acteurId = acteurId;
+        this.pendingFilmId = filmId;
+        this.pendingActeurId = acteurId;
     }
 
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFilmId() {
-        return filmId;
-    }
-
-    public void setFilmId(String filmId) {
-        this.filmId = filmId;
-    }
-
-    public String getActeurId() {
-        return acteurId;
-    }
-
-    public void setActeurId(String acteurId) {
-        this.acteurId = acteurId;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
+    public String getFilmId() { return film == null ? pendingFilmId : film.getImdb(); }
+    public void setFilmId(String value) { this.pendingFilmId = value; }
+    public String getActeurId() { return acteur == null ? pendingActeurId : acteur.getIdImdb(); }
+    public void setActeurId(String value) { this.pendingActeurId = value; }
 
     @Override
     public String toString() {
-        return "Role{" +
-                "id=" + id +
-                ", roleName='" + roleName + '\'' +
-                ", filmId='" + filmId + '\'' +
-                ", acteurId='" + acteurId + '\'' +
-                '}';
+        return "Role{id=" + id + ", roleName='" + roleName + "', filmId='" + getFilmId()
+                + "', acteurId='" + getActeurId() + "'}";
     }
 }
