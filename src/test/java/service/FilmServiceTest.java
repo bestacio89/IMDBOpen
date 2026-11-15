@@ -1,19 +1,20 @@
 package service;
 
-import static org.mockito.Mockito.*;
-
-
+import com.example.imdbopen.country.application.port.out.CountryStore;
 import com.example.imdbopen.film.domain.Film;
-import persistence.repository.IFilmRepository;
 import com.example.imdbopen.genre.application.port.out.GenreStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import persistence.repository.IFilmRepository;
 
-public class FilmServiceTest {
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+class FilmServiceTest {
     @InjectMocks
     private FilmService filmService;
 
@@ -23,17 +24,21 @@ public class FilmServiceTest {
     @Mock
     private GenreStore genreStore;
 
+    @Mock
+    private CountryStore countryStore;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testSave() {
+    void saveDelegatesToFilmRepository() {
         Film film = new Film();
         when(filmRepository.saveAndFlush(film)).thenReturn(film);
 
-        filmService.save(film); // Adjusted to match the return type of the save method
+        filmService.save(film);
+
         verify(filmRepository, times(1)).saveAndFlush(film);
     }
 }

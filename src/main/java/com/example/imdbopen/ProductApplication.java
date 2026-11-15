@@ -19,7 +19,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "exceptions"
 })
 @EntityScan(basePackages = {"entities", "com.example.imdbopen"})
-@EnableJpaRepositories(basePackages = {"persistence.repository", "com.example.imdbopen.genre.infrastructure.persistence"})
+@EnableJpaRepositories(basePackages = {
+        "persistence.repository",
+        "com.example.imdbopen.genre.infrastructure.persistence",
+        "com.example.imdbopen.country.infrastructure.persistence"
+})
 public class ProductApplication {
 
     public static void main(String[] args) {

@@ -1,20 +1,18 @@
 package utilities.csvextractors;
 
-
-import com.example.imdbopen.film.domain.Film;
-import com.example.imdbopen.genre.domain.Genre;
+import com.example.imdbopen.country.application.PaysService;
 import com.example.imdbopen.country.domain.Pays;
-import service.FilmService;
+import com.example.imdbopen.film.domain.Film;
 import com.example.imdbopen.genre.application.GenreService;
-import service.PaysService;
-import web.model.dto.FilmDTO;
-import com.opencsv.CSVReader;
+import com.example.imdbopen.genre.domain.Genre;
 import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import service.FilmService;
+import web.model.dto.FilmDTO;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -24,27 +22,26 @@ import java.util.Set;
 
 @Component
 public class FilmExtractor {
+    private final FilmService filmService;
+    private final PaysService paysService;
+    private final GenreService genreService;
 
-    @Autowired
-    private FilmService filmService;
-
-    @Autowired
-    private PaysService paysService;  // Assuming you need this service
-    @Autowired
-    private GenreService genreService;
+    public FilmExtractor(FilmService filmService, PaysService paysService, GenreService genreService) {
+        this.filmService = filmService;
+        this.paysService = paysService;
+        this.genreService = genreService;
+    }
 
     @Transactional
     public void extractAndSaveFilmsFromCSV(String filePath) {
         try (CSVReader reader = new CSVReaderBuilder(new FileReader(filePath))
                 .withCSVParser(new CSVParserBuilder().withSeparator(';').build())
                 .build()) {
-
-            String[] header = reader.readNext(); // Read the header row
+            reader.readNext();
             String[] line;
 
             while ((line = reader.readNext()) != null) {
                 try {
-                    // Parse and create a Film instance from the CSV data
                     String imdb = line[0].isEmpty() ? "N/A" : line[0].trim();
                     String nom = line[1].isEmpty() ? "N/A" : line[1].trim();
                     String annee = line[2].isEmpty() ? "N/A" : line[2].trim();
@@ -56,28 +53,19 @@ public class FilmExtractor {
                     String resume = line[8].isEmpty() ? "N/A" : line[8].trim();
                     String paysName = line[9].isEmpty() ? "N/A" : line[9].trim();
 
-                    // Check the length of the resume to avoid Data Truncation errors
                     if (resume.length() > 10000) {
                         System.err.println("Resume too long for film: " + nom + ". Truncating to 10,000 characters.");
-                        resume = resume.substring(0, 10000);  // Truncate to max length
+                        resume = resume.substring(0, 10000);
                     }
 
-                    // Validate if the film already exists by IMDb ID
-                    Optional<FilmDTO> existingFilmOpt = filmService.findFilmByImdb(imdb);
-
-                    if (!existingFilmOpt.isPresent()) {
-                        // If the film does not exist, create a new one
-
-                        // Create or find a Pays instance
+                    Optional<FilmDTO> existingFilm = filmService.findFilmByImdb(imdb);
+                    if (existingFilm.isEmpty()) {
                         Pays pays = paysService.findOrCreatePays(paysName);
-
-                        // Create or find Genre instances
                         Set<Genre> genres = new HashSet<>();
                         for (String genreName : genre.split(",")) {
                             genres.add(genreService.findOrCreateGenre(genreName.trim()));
                         }
 
-                        // Create a new Film instance
                         Film film = new Film();
                         film.setImdb(imdb);
                         film.setNom(nom);
@@ -88,27 +76,23 @@ public class FilmExtractor {
                         film.setLangue(langue);
                         film.setResume(resume);
                         film.setPays(pays);
-                        film.setGenres(genre);// Set the Pays object correctly
-
-                        // Save the new film to the database
+                        film.setGenres(genre);
                         filmService.save(film);
-
                     } else {
-                        // Optionally handle duplicates (e.g., update existing records, log a warning, etc.)
                         System.out.println("Film with IMDb ID " + imdb + " already exists. Skipping...");
                     }
-
-                } catch (Exception e) {
-                    System.err.println("Error processing line for film: " + (line.length > 1 ? line[1] : "Unknown") + " - " + e.getMessage());
-                    e.printStackTrace();  // Print full stack trace for debugging
+                } catch (Exception exception) {
+                    System.err.println("Error processing line for film: "
+                            + (line.length > 1 ? line[1] : "Unknown") + " - " + exception.getMessage());
+                    exception.printStackTrace();
                 }
             }
-        } catch (IOException e) {
-            System.err.println("Error reading the CSV file: " + e.getMessage());
-            e.printStackTrace();
-        } catch (CsvValidationException e) {
-            System.err.println("CSV validation error: " + e.getMessage());
-            e.printStackTrace();
+        } catch (IOException exception) {
+            System.err.println("Error reading the CSV file: " + exception.getMessage());
+            exception.printStackTrace();
+        } catch (CsvValidationException exception) {
+            System.err.println("CSV validation error: " + exception.getMessage());
+            exception.printStackTrace();
         }
     }
 }

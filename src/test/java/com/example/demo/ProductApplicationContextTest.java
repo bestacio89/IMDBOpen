@@ -1,15 +1,16 @@
 package com.example.demo;
 
 import com.example.imdbopen.ProductApplication;
+import com.example.imdbopen.country.application.port.out.CountryStore;
 import com.example.imdbopen.film.domain.Film;
-import persistence.repository.IFilmRepository;
-import web.controller.FilmController;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
+import persistence.repository.IFilmRepository;
+import web.controller.FilmController;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,9 +27,13 @@ class ProductApplicationContextTest {
     @Autowired
     private IFilmRepository filmRepository;
 
+    @Autowired
+    private CountryStore countryStore;
+
     @Test
-    void shouldDiscoverFilmEntityRepositoryAndController() {
+    void discoversFilmEntityRepositoryControllerAndCountryStore() {
         assertNotNull(filmRepository);
+        assertNotNull(countryStore);
         assertNotNull(applicationContext.getBean(FilmController.class));
         assertTrue(entityManagerFactory.getMetamodel().getEntities().stream()
                 .anyMatch(entityType -> entityType.getJavaType().equals(Film.class)));

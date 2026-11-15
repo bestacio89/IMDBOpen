@@ -1,12 +1,10 @@
 package web.controller;
 
-
+import com.example.imdbopen.country.application.PaysService;
 import com.example.imdbopen.country.domain.Pays;
-import service.PaysService;
-import web.model.dto.PaysDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import web.model.dto.PaysDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,9 +12,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/pays")
 public class PaysController {
+    private final PaysService paysService;
 
-    @Autowired
-    private PaysService paysService;
+    public PaysController(PaysService paysService) {
+        this.paysService = paysService;
+    }
 
     @GetMapping
     public List<PaysDTO> getAllPays() {
@@ -45,9 +45,8 @@ public class PaysController {
             Pays pays = convertToEntity(paysDTO);
             pays.setId(id);
             return ResponseEntity.ok(convertToDTO(paysService.save(pays)));
-        } else {
-            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
@@ -55,9 +54,8 @@ public class PaysController {
         if (paysService.findById(id).isPresent()) {
             paysService.deleteById(id);
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.notFound().build();
     }
 
     private PaysDTO convertToDTO(Pays pays) {

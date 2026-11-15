@@ -1,13 +1,10 @@
-package persistence.repository;
-
+package com.example.imdbopen.country.infrastructure.persistence;
 
 import com.example.imdbopen.country.domain.Pays;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
-public interface IPaysRepository extends JpaRepository<Pays, Long> {
+public interface CountryJpaRepository extends JpaRepository<Pays, Long> {
     Optional<Pays> findByName(String name);
 }

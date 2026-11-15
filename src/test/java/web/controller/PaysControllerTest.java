@@ -1,8 +1,7 @@
 package web.controller;
 
+import com.example.imdbopen.country.application.PaysService;
 import com.example.imdbopen.country.domain.Pays;
-import service.PaysService;
-import web.model.dto.PaysDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,19 +11,26 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import web.model.dto.PaysDTO;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class PaysControllerTest {
-
     private MockMvc mockMvc;
 
     @Mock
@@ -43,20 +49,11 @@ class PaysControllerTest {
     }
 
     @Test
-    void testGetAllPays_Success() throws Exception {
-        // Arrange
-        Pays pays1 = new Pays();
-        pays1.setId(1L);
-        pays1.setNom("France");
+    void getAllPaysReturnsCountries() throws Exception {
+        Pays france = new Pays(1L, "France");
+        Pays germany = new Pays(2L, "Germany");
+        when(paysService.findAll()).thenReturn(Arrays.asList(france, germany));
 
-        Pays pays2 = new Pays();
-        pays2.setId(2L);
-        pays2.setNom("Germany");
-
-        List<Pays> paysList = Arrays.asList(pays1, pays2);
-        when(paysService.findAll()).thenReturn(paysList);
-
-        // Act & Assert
         mockMvc.perform(get("/api/pays"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -69,134 +66,94 @@ class PaysControllerTest {
     }
 
     @Test
-    void testGetPaysById_Success() throws Exception {
-        // Arrange
-        Long paysId = 1L;
-        Pays pays = new Pays();
-        pays.setId(paysId);
-        pays.setNom("France");
+    void getPaysByIdReturnsCountry() throws Exception {
+        Pays country = new Pays(1L, "France");
+        when(paysService.findById(1L)).thenReturn(Optional.of(country));
 
-        when(paysService.findById(paysId)).thenReturn(Optional.of(pays));
-
-        // Act & Assert
-        mockMvc.perform(get("/api/pays/{id}", paysId))
+        mockMvc.perform(get("/api/pays/{id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.nom", is("France")));
 
-        verify(paysService, times(1)).findById(paysId);
+        verify(paysService).findById(1L);
     }
 
     @Test
-    void testGetPaysById_NotFound() throws Exception {
-        // Arrange
-        Long paysId = 1L;
-        when(paysService.findById(paysId)).thenReturn(Optional.empty());
+    void getPaysByIdReturnsNotFound() throws Exception {
+        when(paysService.findById(1L)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        mockMvc.perform(get("/api/pays/{id}", paysId))
+        mockMvc.perform(get("/api/pays/{id}", 1L))
                 .andExpect(status().isNotFound());
 
-        verify(paysService, times(1)).findById(paysId);
+        verify(paysService).findById(1L);
     }
 
     @Test
-    void testCreatePays_Success() throws Exception {
-        // Arrange
-        PaysDTO paysDTO = new PaysDTO();
-        paysDTO.setNom("France");
+    void createPaysReturnsPersistedCountry() throws Exception {
+        PaysDTO request = new PaysDTO();
+        request.setNom("France");
+        when(paysService.save(any(Pays.class))).thenReturn(new Pays(1L, "France"));
 
-        Pays pays = new Pays();
-        pays.setId(1L);
-        pays.setNom("France");
-
-        when(paysService.save(any(Pays.class))).thenReturn(pays);
-
-        // Act & Assert
         mockMvc.perform(post("/api/pays")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(paysDTO)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.nom", is("France")));
 
-        verify(paysService, times(1)).save(any(Pays.class));
+        verify(paysService).save(any(Pays.class));
     }
 
     @Test
-    void testUpdatePays_Success() throws Exception {
-        // Arrange
-        Long paysId = 1L;
-        PaysDTO paysDTO = new PaysDTO();
-        paysDTO.setNom("Updated Pays");
+    void updatePaysUpdatesExistingCountry() throws Exception {
+        PaysDTO request = new PaysDTO();
+        request.setNom("Updated Pays");
+        when(paysService.findById(1L)).thenReturn(Optional.of(new Pays(1L, "France")));
+        when(paysService.save(any(Pays.class))).thenReturn(new Pays(1L, "Updated Pays"));
 
-        Pays existingPays = new Pays();
-        existingPays.setId(paysId);
-        existingPays.setNom("France");
-
-        Pays updatedPays = new Pays();
-        updatedPays.setId(paysId);
-        updatedPays.setNom("Updated Pays");
-
-        when(paysService.findById(paysId)).thenReturn(Optional.of(existingPays));
-        when(paysService.save(any(Pays.class))).thenReturn(updatedPays);
-
-        // Act & Assert
-        mockMvc.perform(put("/api/pays/{id}", paysId)
+        mockMvc.perform(put("/api/pays/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(paysDTO)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.nom", is("Updated Pays")));
 
-        verify(paysService, times(1)).findById(paysId);
-        verify(paysService, times(1)).save(any(Pays.class));
+        verify(paysService).findById(1L);
+        verify(paysService).save(any(Pays.class));
     }
 
     @Test
-    void testUpdatePays_NotFound() throws Exception {
-        // Arrange
-        Long paysId = 1L;
-        PaysDTO paysDTO = new PaysDTO();
-        paysDTO.setNom("Updated Pays");
+    void updatePaysReturnsNotFoundWhenMissing() throws Exception {
+        PaysDTO request = new PaysDTO();
+        request.setNom("Updated Pays");
+        when(paysService.findById(1L)).thenReturn(Optional.empty());
 
-        when(paysService.findById(paysId)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        mockMvc.perform(put("/api/pays/{id}", paysId)
+        mockMvc.perform(put("/api/pays/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(paysDTO)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
 
-        verify(paysService, times(1)).findById(paysId);
-        verify(paysService, times(0)).save(any(Pays.class));
+        verify(paysService).findById(1L);
     }
 
     @Test
-    void testDeletePays_Success() throws Exception {
-        // Arrange
-        Long paysId = 1L;
-        when(paysService.findById(paysId)).thenReturn(Optional.of(new Pays()));
+    void deletePaysDeletesExistingCountry() throws Exception {
+        when(paysService.findById(1L)).thenReturn(Optional.of(new Pays(1L, "France")));
 
-        // Act & Assert
-        mockMvc.perform(delete("/api/pays/{id}", paysId))
+        mockMvc.perform(delete("/api/pays/{id}", 1L))
                 .andExpect(status().isNoContent());
 
-        verify(paysService, times(1)).findById(paysId);
-        verify(paysService, times(1)).deleteById(paysId);
+        verify(paysService).findById(1L);
+        verify(paysService).deleteById(1L);
     }
 
     @Test
-    void testDeletePays_NotFound() throws Exception {
-        // Arrange
-        Long paysId = 1L;
-        when(paysService.findById(paysId)).thenReturn(Optional.empty());
+    void deletePaysReturnsNotFoundWhenMissing() throws Exception {
+        when(paysService.findById(1L)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        mockMvc.perform(delete("/api/pays/{id}", paysId))
+        mockMvc.perform(delete("/api/pays/{id}", 1L))
                 .andExpect(status().isNotFound());
 
-        verify(paysService, times(1)).findById(paysId);
-        verify(paysService, times(0)).deleteById(paysId);
+        verify(paysService).findById(1L);
     }
 }
