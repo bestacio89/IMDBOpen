@@ -5,7 +5,7 @@ import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import com.example.imdbopen.actor.contracts.ActeurDTO;
 import com.example.imdbopen.person.contracts.PersonneDTO;
-import web.model.generic.ApiResponse;
+import com.example.imdbopen.shared.api.ApiResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -5,7 +5,7 @@ import exceptions.InvalidDataException;
 import com.example.imdbopen.film.application.FilmService;
 
 import com.example.imdbopen.film.contracts.FilmDTO;
-import web.model.generic.ApiResponse;
+import com.example.imdbopen.shared.api.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

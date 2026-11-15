@@ -2,7 +2,7 @@ package com.example.imdbopen.director.api;
 
 import com.example.imdbopen.director.application.RealisateurService;
 import com.example.imdbopen.director.contracts.RealisateurDTO;
-import web.model.generic.ApiResponse;
+import com.example.imdbopen.shared.api.ApiResponse;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import exceptions.ServiceException;

@@ -1,4 +1,4 @@
-package web.model.generic;
+package com.example.imdbopen.shared.api;
 
 public class ApiResponse<T> {
     private int status;
@@ -11,7 +11,6 @@ public class ApiResponse<T> {
         this.data = data;
     }
 
-    // Getters and setters
     public int getStatus() {
         return status;
     }

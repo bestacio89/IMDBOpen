@@ -48,7 +48,7 @@ class LayerDependencyArchitectureTest {
     void moduleApiControllersDoNotDependOnPersistenceRepositories() {
         noClasses().that().resideInAnyPackage("..api..", "web.controller..")
                 .should().dependOnClassesThat()
-                .resideInAnyPackage("persistence.repository..", "..infrastructure.persistence..")
+                .resideInAnyPackage("persistence.repository..", "..infrastructure.persistence..", "web..")
                 .check(applicationClasses);
     }
 

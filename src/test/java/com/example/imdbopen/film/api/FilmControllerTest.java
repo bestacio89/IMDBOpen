@@ -4,7 +4,7 @@ import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import com.example.imdbopen.film.application.FilmService;
 import com.example.imdbopen.film.contracts.FilmDTO;
-import web.model.generic.ApiResponse;
+import com.example.imdbopen.shared.api.ApiResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
