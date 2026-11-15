@@ -118,6 +118,13 @@ public class FilmService {
         return FilmDTO.fromEntity(filmRepository.save(existing));
     }
 
+    @Transactional
+    public void deleteFilm(Long id) {
+        Film film = filmRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Film not found with ID: " + id));
+        filmRepository.delete(film);
+    }
+
     private Pays resolveCountry(Pays requested) {
         if (requested == null) return null;
         if (requested.getId() != null) {
