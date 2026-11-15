@@ -5,8 +5,8 @@ import com.example.imdbopen.film.domain.Film;
 import com.example.imdbopen.film.domain.FilmDirector;
 import com.example.imdbopen.film.domain.FilmDirectorId;
 import com.example.imdbopen.genre.domain.Genre;
-import entities.business.personne.Acteur;
 import com.example.imdbopen.person.domain.Personne;
+import entities.business.personne.Acteur;
 import entities.business.personne.Realisateur;
 import entities.business.role.Role;
 import jakarta.persistence.EntityManager;
@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
@@ -33,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         "spring.flyway.enabled=true",
         "spring.liquibase.enabled=false"
 })
+@ContextConfiguration(initializers = MariaDbSchemaInitializer.class)
 @EnabledIfEnvironmentVariable(named = "IMDBOPEN_TEST_DB_URL", matches = "jdbc:mariadb:.*")
 class MariaDbPersistenceContextTest {
     @Autowired
