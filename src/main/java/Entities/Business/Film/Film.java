@@ -11,6 +11,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "film", uniqueConstraints = @UniqueConstraint(name = "uk_film_tconst", columnNames = "tconst"))
@@ -91,6 +92,10 @@ public class Film implements Entities.generic.IEntity<Long> {
     public void setResume(String value) { this.synopsis = value; }
     public Pays getPays() { return country; }
     public void setPays(Pays value) { this.country = value; }
+    public String getGenres() {
+        if (genres != null) return genres;
+        return genresl.stream().map(Genre::getName).collect(Collectors.joining(", "));
+    }
 
     @Override public java.time.LocalDateTime getCreatedDate() { return null; }
     @Override public void setCreatedDate(java.time.LocalDateTime value) { }

@@ -1,15 +1,15 @@
 package service;
 
-
+import entities.business.Film.Film;
+import entities.business.personne.Acteur;
 import entities.business.role.Role;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
 import persistence.repository.IRoleRepository;
 import persistence.repository.IFilmRepository;
 import persistence.repository.IActeurRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import web.model.dto.RoleDTO;
 
@@ -18,98 +18,85 @@ import java.util.stream.Collectors;
 
 @Service
 public class RoleService {
+    private final IRoleRepository roleRepository;
+    private final IFilmRepository filmRepository;
+    private final IActeurRepository actorRepository;
 
-    @Autowired
-    private IRoleRepository roleRepository;
+    public RoleService(IRoleRepository roleRepository, IFilmRepository filmRepository,
+                       IActeurRepository actorRepository) {
+        this.roleRepository = roleRepository;
+        this.filmRepository = filmRepository;
+        this.actorRepository = actorRepository;
+    }
 
-    @Autowired
-    private IFilmRepository filmRepository;
-
-    @Autowired
-    private IActeurRepository actorRepository;
-
-    /**
-     * Finds roles based on multiple filters.
-     *
-     * @param roleName the name of the role
-     * @param filmId   the ID of the film associated with the role
-     * @param actorId  the ID of the actor associated with the role
-     * @return a list of RoleDTO objects
-     */
+    @Transactional(readOnly = true)
     public List<RoleDTO> findRolesWithFilters(String roleName, Long filmId, Long actorId) {
         List<Role> roles = roleRepository.findAll();
-
-        // Apply filters
         if (StringUtils.hasText(roleName)) {
             roles = roles.stream()
-                    .filter(role -> role.getRoleName().toLowerCase().contains(roleName.toLowerCase()))
+                    .filter(role -> role.getRoleName() != null
+                            && role.getRoleName().toLowerCase().contains(roleName.toLowerCase()))
                     .collect(Collectors.toList());
         }
-
-        if (roles.isEmpty()) {
-            throw new EntityNotFoundException("No roles found matching the criteria");
+        if (filmId != null) {
+            roles = roles.stream().filter(role -> role.getFilm() != null
+                    && filmId.equals(role.getFilm().getId())).collect(Collectors.toList());
         }
-
+        if (actorId != null) {
+            roles = roles.stream().filter(role -> role.getActeur() != null
+                    && actorId.equals(role.getActeur().getId())).collect(Collectors.toList());
+        }
+        if (roles.isEmpty()) throw new EntityNotFoundException("No roles found matching the criteria");
         return roles.stream().map(RoleDTO::fromEntity).collect(Collectors.toList());
     }
-    /**
-     * Finds roles by role name.
-     *
-     * @param roleName the name of the role
-     * @return a list of RoleDTO objects
-     */
+
+    @Transactional(readOnly = true)
     public List<RoleDTO> findRolesByRoleName(String roleName) {
         List<Role> roles = roleRepository.findByRoleName(roleName);
-        if (roles.isEmpty()) {
-            throw new EntityNotFoundException("No roles found with name: " + roleName);
-        }
+        if (roles.isEmpty()) throw new EntityNotFoundException("No roles found with name: " + roleName);
         return roles.stream().map(RoleDTO::fromEntity).collect(Collectors.toList());
     }
 
-    /**
-     * Creates a new role.
-     *
-     * @param roleDTO the RoleDTO object to create
-     * @return the created RoleDTO object
-     */
+    @Transactional
     public RoleDTO createRole(RoleDTO roleDTO) {
-        if (roleDTO == null) {
-            throw new InvalidDataException("Role data cannot be null");
-        }
+        if (roleDTO == null) throw new InvalidDataException("Role data cannot be null");
         Role role = roleDTO.toEntity();
-        Role savedRole = roleRepository.save(role);
-        return RoleDTO.fromEntity(savedRole);
+        resolveAssociations(role);
+        return RoleDTO.fromEntity(roleRepository.save(role));
     }
 
-    /**
-     * Updates an existing role.
-     *
-     * @param id      the ID of the role to update
-     * @param roleDTO the RoleDTO object with updated data
-     * @return the updated RoleDTO object
-     */
+    @Transactional
     public RoleDTO updateRole(Long id, RoleDTO roleDTO) {
-        if (roleDTO == null) {
-            throw new InvalidDataException("Role data cannot be null");
-        }
-        Role existingRole = roleRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Role not found with ID: " + id));
-
-        existingRole.setRoleName(roleDTO.getRoleName());
-
-
-        Role updatedRole = roleRepository.save(existingRole);
-        return RoleDTO.fromEntity(updatedRole);
+        if (roleDTO == null) throw new InvalidDataException("Role data cannot be null");
+        Role existing = roleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Role not found with ID: " + id));
+        if (StringUtils.hasText(roleDTO.getRoleName())) existing.setRoleName(roleDTO.getRoleName());
+        if (StringUtils.hasText(roleDTO.getFilmId())) existing.setFilm(resolveFilm(roleDTO.getFilmId()));
+        if (StringUtils.hasText(roleDTO.getActeurId())) existing.setActeur(resolveActor(roleDTO.getActeurId()));
+        return RoleDTO.fromEntity(roleRepository.save(existing));
     }
 
-    /**
-     * Deletes a role by ID.
-     *
-     * @param id the ID of the role to delete
-     */
+    @Transactional
     public void deleteRole(Long id) {
-        Role role = roleRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Role not found with ID: " + id));
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Role not found with ID: " + id));
         roleRepository.delete(role);
+    }
+
+    private void resolveAssociations(Role role) {
+        role.setFilm(resolveFilm(role.getFilmId()));
+        role.setActeur(resolveActor(role.getActeurId()));
+    }
+
+    private Film resolveFilm(String tconst) {
+        if (!StringUtils.hasText(tconst)) throw new InvalidDataException("Film IMDb identifier is required");
+        return filmRepository.findByImdb(tconst)
+                .orElseThrow(() -> new EntityNotFoundException("Film not found with IMDb identifier: " + tconst));
+    }
+
+    private Acteur resolveActor(String nconst) {
+        if (!StringUtils.hasText(nconst)) throw new InvalidDataException("Actor IMDb identifier is required");
+        return actorRepository.findByImdb(nconst)
+                .orElseThrow(() -> new EntityNotFoundException("Actor not found with IMDb identifier: " + nconst));
     }
 }
