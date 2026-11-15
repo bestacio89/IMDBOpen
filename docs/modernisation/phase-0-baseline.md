@@ -26,7 +26,7 @@ The repository previously pinned Maven 3.5.3. The wrapper now pins Maven 3.9.16.
 
 The context test uses H2 and mocks `DatabaseInitializer` to avoid running the existing startup-time DDL and CSV import. It verifies Spring wiring and JPA metadata, but it does not verify MariaDB-specific behaviour or the real startup import path. MariaDB integration tests remain a later gate.
 
-The final workflow definition has also been updated to avoid duplicate push/PR runs, isolate concurrency by Git ref, validate Compose configuration, and skip CI for documentation-only pushes. The current PR-head run remains the merge gate.
+The final PR-head run on commit `04b9250ed354fb23e906573cf475da2d6ff6207a` completed successfully. It exercised `clean verify`, all 77 tests, Docker Compose configuration validation, and both report and application-artifact uploads. The workflow also isolates concurrency by Git ref and skips CI for documentation-only pushes.
 
 ## 2. Aegis assessment — interpretation
 
@@ -76,7 +76,7 @@ Complexity and maintainability results are prioritisation signals, not a substit
 |---|---|---|---|
 | P0-SEC-01 | Credentials were committed in application configuration, Docker configuration and the production workflow. | Database and Docker Hub credentials were present in tracked files. Deleting them from the current tree does not remove them from Git history. | Removed from the current tree. Owner must revoke/reissue the Docker Hub token, rotate MariaDB root/application credentials and configure GitHub Production environment secrets. |
 | P0-BOOT-01 | Spring package and entity scanning were inconsistent. | The original scan used an uppercase entity package and omitted the `web` package. | Fixed in this PR. The application now scans the declared package roots; the context test verifies Film, IFilmRepository and FilmController discovery. |
-| P0-DB-01 | Database schema has competing owners. | DatabaseInitializer performs manual DDL while Hibernate is configured with `ddl-auto=update`; inspected DDL and entity definitions are not fully aligned. | Still open. Inventory the actual schema and data; establish one migration authority; remove manual DDL only after migration coverage exists. |
+| P0-DB-01 | Database schema has competing owners. | ProductApplication invokes DatabaseInitializer on every startup. The initializer creates a hardcoded schema and tables manually while Hibernate is configured with `ddl-auto=update`; inspected DDL and entity definitions are not fully aligned. It then starts a CSV import and catches SQL exceptions instead of failing startup. | Still open. Inventory the actual schema and data; establish one migration authority; remove manual DDL only after migration coverage exists. |
 | P0-DB-02 | No active schema migration framework is configured. | The Liquibase dependency in `pom.xml` is commented out; no Flyway dependency is present. The remaining Liquibase properties file is named `liquidbase.properties`, declares a PostgreSQL driver despite MariaDB being used, and its changelog creates a generic `product` table unrelated to the current domain. | Treat the Liquibase files as stale until proven otherwise. Phase 2 will choose and configure one migration tool after schema/data inventory; do not activate the placeholder changelog or run two migration systems. |
 
 ### P1 — Data ingestion and domain integrity
@@ -100,7 +100,8 @@ Complexity and maintainability results are prioritisation signals, not a substit
 | ID | Finding | Evidence / impact | Planned response |
 |---|---|---|---|
 | P2-TECH-01 | Springfox was incompatible with the Jakarta-based application. | The context test failed with `ClassNotFoundException: javax.servlet.http.HttpServletRequest` from Springfox 3.0.0. | Fixed in this PR by replacing Springfox with Springdoc 2.6.0, which is the compatible Springdoc line for Spring Boot 3.3.x. |
-| P2-TECH-02 | CSV libraries overlap. | Both OpenCSV and Commons CSV are declared. | Select one library based on actual parser requirements and remove the unused dependency. |
+| P2-TECH-02 | Spring Boot baseline is behind the current supported line. | Maven still declares Spring Boot 3.3.4. | Upgrade independently in the framework phase after dependency and API compatibility review. |
+| P2-TECH-03 | CSV libraries overlap. | Both OpenCSV and Commons CSV are declared. | Select one library based on actual parser requirements and remove the unused dependency. |
 | P2-TEST-01 | Test dependencies mix JUnit 4 and Spring Boot Test. | JUnit 4 is explicitly declared alongside Spring Boot Test. | Inventory tests and standardise on JUnit Jupiter. |
 | P2-BUILD-01 | Checkstyle engine is outdated. | Maven verification passes but emits a warning that the Checkstyle version is below the recommended minimum. | Upgrade Checkstyle and its Maven plugin in the framework/tooling phase. |
 | P2-LOMBOK-01 | Lombok builder defaults are silently ignored. | Film.genresl and Genre.films have initialisers that Lombok `@Builder` ignores. | Verify intended defaults; use `@Builder.Default` or remove inappropriate builders/initialisers. |
