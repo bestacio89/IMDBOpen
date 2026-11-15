@@ -1,7 +1,7 @@
 package com.example.demo;
 
 import com.example.imdbopen.ProductApplication;
-import entities.business.Film.Film;
+import com.example.imdbopen.film.domain.Film;
 import persistence.repository.IFilmRepository;
 import web.controller.FilmController;
 import jakarta.persistence.EntityManagerFactory;
