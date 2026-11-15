@@ -11,6 +11,8 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Entity
@@ -19,6 +21,9 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 public class Film implements Entities.generic.IEntity<Long> {
+    private static final Pattern RELEASE_YEAR_PATTERN =
+            Pattern.compile("(?<!\\d)(\\d{4})(?:\\D+(\\d{4}))?(?!\\d)");
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -73,7 +78,18 @@ public class Film implements Entities.generic.IEntity<Long> {
     public String getNom() { return title; }
     public void setNom(String value) { this.title = value; }
     public String getAnnee() { return releaseYearSource; }
-    public void setAnnee(String value) { this.releaseYearSource = value; }
+    public void setAnnee(String value) {
+        this.releaseYearSource = value;
+        this.releaseYearStart = null;
+        this.releaseYearEnd = null;
+        if (value == null) return;
+        Matcher matcher = RELEASE_YEAR_PATTERN.matcher(value);
+        if (matcher.find()) {
+            this.releaseYearStart = Short.valueOf(matcher.group(1));
+            this.releaseYearEnd = matcher.group(2) == null
+                    ? this.releaseYearStart : Short.valueOf(matcher.group(2));
+        }
+    }
     public String getRating() { return ratingValue == null ? null : ratingValue.toPlainString(); }
     public void setRating(String value) {
         if (value == null || value.isBlank() || "NA".equalsIgnoreCase(value)) {
@@ -87,7 +103,9 @@ public class Film implements Entities.generic.IEntity<Long> {
     public String getLieuTour() { return filmingLocations; }
     public void setLieuTour(String value) { this.filmingLocations = value; }
     public String getLangue() { return language; }
-    public void setLangue(String value) { this.language = value; }
+    public void setLangue(String value) {
+        this.language = value == null || "None".equalsIgnoreCase(value.trim()) ? null : value.trim();
+    }
     public String getResume() { return synopsis; }
     public void setResume(String value) { this.synopsis = value; }
     public Pays getPays() { return country; }

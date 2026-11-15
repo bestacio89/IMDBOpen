@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 
 @Entity
 @Table(name = "person", uniqueConstraints = @UniqueConstraint(name = "uk_person_nconst", columnNames = "nconst"))
@@ -51,11 +50,7 @@ public class Personne implements Entities.generic.IEntity<Long> {
     }
     public void setDateNaissance(String value) {
         this.birthDateSource = value;
-        this.birthDate = null;
-        if (value != null && value.matches("\\d{4}-\\d{2}-\\d{2}")) {
-            try { this.birthDate = LocalDate.parse(value); }
-            catch (DateTimeParseException ignored) { this.birthDate = null; }
-        }
+        this.birthDate = BirthDateParser.parse(value).orElse(null);
     }
     public String getLieuNaissance() { return birthPlace; }
     public void setLieuNaissance(String value) { this.birthPlace = value; }
