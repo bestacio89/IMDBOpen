@@ -1,46 +1,51 @@
 package entities.business.genre;
 
-
 import entities.business.Film.Film;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
-import lombok.*;
-
-
 @Entity
-@Data
-@Builder
+@Table(name = "genre", uniqueConstraints = @UniqueConstraint(name = "uk_genre_name", columnNames = "normalized_name"))
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "Genre")
 public class Genre {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @NotBlank(message = "Genre name cannot be blank")
-    @Column(unique = true, nullable = false)
-    @Size(max = 100, message = "Genre name should not exceed 100 characters")
+    @NotBlank
+    @Size(max = 100)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @ManyToMany(mappedBy = "genresl", fetch = FetchType.EAGER)
+    @Column(name = "normalized_name", nullable = false, length = 100)
+    private String normalizedName;
+
+    @ManyToMany(mappedBy = "genresl", fetch = FetchType.LAZY)
     private Set<Film> films = new HashSet<>();
 
-
-
-
-    public Genre(Object o, String genreName) {
-        // Empty constructor
+    @PrePersist
+    @PreUpdate
+    private void normalizeName() {
+        if (name != null) {
+            normalizedName = name.trim().toLowerCase(Locale.ROOT);
+        }
     }
 
-    public Genre orElseGet(Object o) {
-        return this;
+    public Genre(Long id, String name) {
+        this.id = id;
+        this.name = name;
+        this.normalizedName = name == null ? null : name.trim().toLowerCase(Locale.ROOT);
     }
+
+    public Genre orElseGet(Object ignored) { return this; }
 }

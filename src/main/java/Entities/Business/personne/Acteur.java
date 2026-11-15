@@ -1,50 +1,62 @@
 package entities.business.personne;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "acteur")
-@Data
+@Table(name = "actor")
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Acteur {
-
-    @Setter
-    @Getter
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "personne_id", referencedColumnName = "id")
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "person_id", nullable = false, foreignKey = @ForeignKey(name = "fk_actor_person"))
     private Personne personne;
 
-    @Getter
-    @Setter
-    @Column(name = "id_imdb")
-    private String idImdb;
+    @Column(name = "height_m", precision = 4, scale = 2)
+    private BigDecimal heightMetres;
 
-    @Getter
-    @Setter
-    @Column(name = "taille")
-    private String taille;
+    @Column(name = "height_source", length = 32)
+    private String heightSource;
 
-    // Constructor for Acteur-specific fields
+    @Transient
+    private String pendingImdbId;
+
     public Acteur(String idImdb, String taille) {
-        this.idImdb = idImdb;
-        this.taille = taille;
+        this.pendingImdbId = idImdb;
+        setTaille(taille);
     }
 
-    // Optional: you can add another constructor or setter method to set the Personne object if needed
+    public String getIdImdb() {
+        return personne == null ? pendingImdbId : personne.getNconst();
+    }
+
+    public void setIdImdb(String value) {
+        this.pendingImdbId = value;
+        if (personne != null) personne.setNconst(value);
+    }
+
+    public String getTaille() { return heightSource; }
+
+    public void setTaille(String value) {
+        this.heightSource = value;
+        this.heightMetres = null;
+        if (value != null && value.matches("\\d+(?:[.,]\\d+)?\\s*m?")) {
+            this.heightMetres = new BigDecimal(value.replace("m", "").trim().replace(',', '.'));
+        }
+    }
+
     public void setPersonneDetails(String identite, String dateNaissance) {
         this.personne = new Personne();
         this.personne.setIdentite(identite);
         this.personne.setDateNaissance(dateNaissance);
-    }
-
-    // Alternatively, you can provide a setter for Personne
-    public void setPersonne(Personne personne) {
-        this.personne = personne;
     }
 }

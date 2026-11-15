@@ -1,128 +1,101 @@
 package entities.business.Film;
 
-
 import entities.business.genre.Genre;
 import entities.business.pays.Pays;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "Film")
-@Data
+@Table(name = "film", uniqueConstraints = @UniqueConstraint(name = "uk_film_tconst", columnNames = "tconst"))
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Film implements Entities.generic.IEntity<Long> {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "imdb")
-    @NotBlank(message = "IMDb identifier cannot be blank")
-    @Size(max = 50, message = "IMDb identifier should not exceed 50 characters")
-    private String imdb;
+    @NotBlank
+    @Column(name = "tconst", nullable = false, length = 20)
+    private String tconst;
 
-    @Column(name = "nom")
-    @NotBlank(message = "Film name cannot be blank")
-    @Size(max = 255, message = "Film name should not exceed 255 characters")
-    private String nom;
+    @NotBlank
+    @Column(name = "title", nullable = false, length = 512)
+    private String title;
 
-    @Column(name = "annee")
-    @NotBlank(message = "Année cannot be blank")
-    @Size(max = 10, message = "Année should not exceed 10 characters")
-    private String annee;
+    @Column(name = "release_year_source", nullable = false, length = 32)
+    private String releaseYearSource;
 
-    @Column(name = "rating")
-    @NotBlank(message = "Rating cannot be blank")
-    @Size(max = 4, message = "Rating should not exceed 4 characters")
-    private String rating;
+    @Column(name = "release_year_start")
+    private Short releaseYearStart;
 
-    @Column(name = "url")
-    @Size(max = 500, message = "URL should not exceed 500 characters")
-    private String url;
+    @Column(name = "release_year_end")
+    private Short releaseYearEnd;
 
-    @Column(name = "lieu_tour")
-    @Size(max = 2255, message = "Filming location should not exceed 2255 characters")
-    private String lieuTour;
+    @Column(name = "rating", precision = 3, scale = 1)
+    private BigDecimal ratingValue;
 
-    @Column(name = "langue")
-    @NotBlank(message = "Language cannot be blank")
-    @Size(max = 100, message = "Language should not exceed 100 characters")
-    private String langue;
+    @Column(name = "source_url", length = 1024)
+    private String sourceUrl;
 
-    @Column(name = "resume", columnDefinition = "TEXT")
-    @NotBlank(message = "Resume cannot be blank")
-    private String resume;
+    @Column(name = "filming_locations", columnDefinition = "TEXT")
+    private String filmingLocations;
 
-    @Column(name = "genres")
-    @Size(max = 255, message = "Genres string should not exceed 255 characters")
-    private String genres; // For search features
+    @Column(name = "language", length = 100)
+    private String language;
 
-    @ManyToOne
-    @JoinColumn(name = "id_pays")
-    private Pays pays;
+    @Column(name = "synopsis", columnDefinition = "LONGTEXT")
+    private String synopsis;
 
-    //@ManyToMany
-    //@JoinTable(
-    //        name = "Film_Acteur",
-    //        joinColumns = @JoinColumn(name = "film_imdb"),
-    //        inverseJoinColumns = @JoinColumn(name = "acteur_id_imdb")
-    //)
-    //private List<Acteur> acteurs = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "country_id", foreignKey = @ForeignKey(name = "fk_film_country"))
+    private Pays country;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "film_genre",
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "film_genre",
             joinColumns = @JoinColumn(name = "film_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id")
-    )
+            inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private Set<Genre> genresl = new HashSet<>();
 
-    //@ManyToMany(cascade = CascadeType.ALL)
-    //@JoinTable(
-    //        name = "film_realisateur",
-    //        joinColumns = @JoinColumn(name = "film_imdb"),
-    //        inverseJoinColumns = @JoinColumn(name = "realisateur_id_imdb")
-    //)
-    //private Set<Realisateur> realisateurs = new HashSet<>();
+    @Transient
+    private String genres;
 
-
-    public LocalDateTime getCreatedDate() {
-        return null; // Implement as needed
+    public String getImdb() { return tconst; }
+    public void setImdb(String value) { this.tconst = value; }
+    public String getNom() { return title; }
+    public void setNom(String value) { this.title = value; }
+    public String getAnnee() { return releaseYearSource; }
+    public void setAnnee(String value) { this.releaseYearSource = value; }
+    public String getRating() { return ratingValue == null ? null : ratingValue.toPlainString(); }
+    public void setRating(String value) {
+        if (value == null || value.isBlank() || "NA".equalsIgnoreCase(value)) {
+            this.ratingValue = null;
+            return;
+        }
+        this.ratingValue = new BigDecimal(value.trim().replace(',', '.'));
     }
+    public String getUrl() { return sourceUrl; }
+    public void setUrl(String value) { this.sourceUrl = value; }
+    public String getLieuTour() { return filmingLocations; }
+    public void setLieuTour(String value) { this.filmingLocations = value; }
+    public String getLangue() { return language; }
+    public void setLangue(String value) { this.language = value; }
+    public String getResume() { return synopsis; }
+    public void setResume(String value) { this.synopsis = value; }
+    public Pays getPays() { return country; }
+    public void setPays(Pays value) { this.country = value; }
 
-
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        // Implement as needed
-    }
-
-
-    public LocalDateTime getUpdatedDate() {
-        return null; // Implement as needed
-    }
-
-
-    public void setUpdatedDate(LocalDateTime updatedDate) {
-        // Implement as needed
-    }
-
-
-    public boolean isDeleted() {
-        return false; // Implement as needed
-    }
-
-
-    public void setDeleted(boolean deleted) {
-        // Implement as needed
-    }
+    @Override public java.time.LocalDateTime getCreatedDate() { return null; }
+    @Override public void setCreatedDate(java.time.LocalDateTime value) { }
+    @Override public java.time.LocalDateTime getUpdatedDate() { return null; }
+    @Override public void setUpdatedDate(java.time.LocalDateTime value) { }
+    @Override public boolean isDeleted() { return false; }
+    @Override public void setDeleted(boolean value) { }
 }
