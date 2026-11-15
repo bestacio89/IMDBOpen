@@ -56,11 +56,11 @@ public class ActeurService {
             throw new InvalidDataException("Invalid date of birth format");
         }
 
-        if (dto.getTaille() != null) existing.setTaille(dto.getTaille());
         if (dto.getIdImdb() != null && !dto.getIdImdb().isBlank()
                 && !dto.getIdImdb().equals(existing.getIdImdb())) {
             throw new InvalidDataException("IMDb identifier cannot be changed for an existing actor");
         }
+        if (dto.getTaille() != null) existing.setTaille(dto.getTaille());
 
         if (dto.getPersonne() != null) {
             Personne person = existing.getPersonne();

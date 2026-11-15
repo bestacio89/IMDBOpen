@@ -63,14 +63,14 @@ public class RealisateurService {
         Realisateur existing = realisateurRepository.findById(dto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Realisateur not found with ID: " + dto.getId()));
         Personne person = existing.getPersonne();
-        person.setIdentite(dto.getIdentite());
-        person.setDateNaissance(dto.getDateNaissance());
-        person.setLieuNaissance(dto.getLieuNaissance());
-        person.setUrl(dto.getUrl());
         if (dto.getIdImdb() != null && !dto.getIdImdb().isBlank()
                 && !dto.getIdImdb().equals(person.getNconst())) {
             throw new InvalidDataException("IMDb identifier cannot be changed for an existing director");
         }
+        person.setIdentite(dto.getIdentite());
+        person.setDateNaissance(dto.getDateNaissance());
+        person.setLieuNaissance(dto.getLieuNaissance());
+        person.setUrl(dto.getUrl());
         try {
             return RealisateurDTO.fromEntity(realisateurRepository.save(existing));
         } catch (Exception exception) {
