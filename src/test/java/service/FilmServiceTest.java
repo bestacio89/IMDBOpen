@@ -3,7 +3,7 @@ package service;
 import static org.mockito.Mockito.*;
 
 
-import entities.business.Film.Film;
+import com.example.imdbopen.film.domain.Film;
 import persistence.repository.IFilmRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

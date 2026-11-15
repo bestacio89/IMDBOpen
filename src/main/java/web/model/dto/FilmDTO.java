@@ -1,7 +1,7 @@
 package web.model.dto;
 
 
-import entities.business.Film.Film;
+import com.example.imdbopen.film.domain.Film;
 import entities.business.pays.Pays;
 import lombok.Data;
 

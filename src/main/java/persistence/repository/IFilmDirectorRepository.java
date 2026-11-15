@@ -1,7 +1,7 @@
 package persistence.repository;
 
-import entities.business.Film.FilmDirector;
-import entities.business.Film.FilmDirectorId;
+import com.example.imdbopen.film.domain.FilmDirector;
+import com.example.imdbopen.film.domain.FilmDirectorId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

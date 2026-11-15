@@ -1,6 +1,6 @@
 package entities.business.role;
 
-import entities.business.Film.Film;
+import com.example.imdbopen.film.domain.Film;
 import entities.business.personne.Acteur;
 import jakarta.persistence.*;
 import lombok.Getter;

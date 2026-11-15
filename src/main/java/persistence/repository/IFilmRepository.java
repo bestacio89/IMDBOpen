@@ -1,6 +1,6 @@
 package persistence.repository;
 
-import entities.business.Film.Film;
+import com.example.imdbopen.film.domain.Film;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

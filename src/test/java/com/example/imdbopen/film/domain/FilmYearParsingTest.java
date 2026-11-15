@@ -1,4 +1,4 @@
-package entities.business.Film;
+package com.example.imdbopen.film.domain;
 
 import org.junit.jupiter.api.Test;
 

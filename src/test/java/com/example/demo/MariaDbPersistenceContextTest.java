@@ -1,9 +1,9 @@
 package com.example.demo;
 
 import com.example.imdbopen.ProductApplication;
-import entities.business.Film.Film;
-import entities.business.Film.FilmDirector;
-import entities.business.Film.FilmDirectorId;
+import com.example.imdbopen.film.domain.Film;
+import com.example.imdbopen.film.domain.FilmDirector;
+import com.example.imdbopen.film.domain.FilmDirectorId;
 import com.example.imdbopen.genre.domain.Genre;
 import entities.business.personne.Acteur;
 import entities.business.personne.Personne;

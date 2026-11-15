@@ -1,4 +1,4 @@
-package entities.business.Film;
+package com.example.imdbopen.film.domain;
 
 import entities.business.personne.Realisateur;
 import jakarta.persistence.*;

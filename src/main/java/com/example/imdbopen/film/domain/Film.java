@@ -1,4 +1,4 @@
-package entities.business.Film;
+package com.example.imdbopen.film.domain;
 
 import com.example.imdbopen.genre.domain.Genre;
 import entities.business.pays.Pays;
