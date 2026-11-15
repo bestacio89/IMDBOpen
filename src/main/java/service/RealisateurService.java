@@ -2,9 +2,11 @@ package service;
 
 import entities.business.personne.Personne;
 import entities.business.personne.Realisateur;
+import persistence.repository.IPersonneRepository;
 import persistence.repository.IRealisateurRepository;
 import web.model.dto.RealisateurDTO;
 import exceptions.EntityNotFoundException;
+import exceptions.InvalidDataException;
 import exceptions.ServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +19,12 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class RealisateurService {
     private final IRealisateurRepository realisateurRepository;
+    private final IPersonneRepository personneRepository;
 
-    public RealisateurService(IRealisateurRepository realisateurRepository) {
+    public RealisateurService(IRealisateurRepository realisateurRepository,
+                              IPersonneRepository personneRepository) {
         this.realisateurRepository = realisateurRepository;
+        this.personneRepository = personneRepository;
     }
 
     public List<RealisateurDTO> findAll() {
@@ -37,8 +42,17 @@ public class RealisateurService {
 
     @Transactional
     public RealisateurDTO save(RealisateurDTO dto) {
+        if (dto == null || dto.getIdImdb() == null || dto.getIdImdb().isBlank()) {
+            throw new InvalidDataException("Director IMDb identifier is required");
+        }
         try {
-            return RealisateurDTO.fromEntity(realisateurRepository.save(dto.toEntity()));
+            Personne person = personneRepository.findByNconst(dto.getIdImdb())
+                    .orElseGet(() -> dto.toEntity().getPersonne());
+            Realisateur director = new Realisateur();
+            director.setPersonne(person);
+            return RealisateurDTO.fromEntity(realisateurRepository.save(director));
+        } catch (InvalidDataException exception) {
+            throw exception;
         } catch (Exception exception) {
             throw new ServiceException("Failed to save Realisateur: " + exception.getMessage());
         }
@@ -53,7 +67,9 @@ public class RealisateurService {
         person.setDateNaissance(dto.getDateNaissance());
         person.setLieuNaissance(dto.getLieuNaissance());
         person.setUrl(dto.getUrl());
-        person.setNconst(dto.getIdImdb());
+        if (dto.getIdImdb() != null && !dto.getIdImdb().isBlank()) {
+            person.setNconst(dto.getIdImdb());
+        }
         try {
             return RealisateurDTO.fromEntity(realisateurRepository.save(existing));
         } catch (Exception exception) {

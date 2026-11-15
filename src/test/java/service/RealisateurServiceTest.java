@@ -2,6 +2,7 @@ package service;
 
 import entities.business.personne.Personne;
 import entities.business.personne.Realisateur;
+import persistence.repository.IPersonneRepository;
 import persistence.repository.IRealisateurRepository;
 import web.model.dto.RealisateurDTO;
 import exceptions.EntityNotFoundException;
@@ -25,18 +26,38 @@ class RealisateurServiceTest {
     @Mock
     private IRealisateurRepository repository;
 
+    @Mock
+    private IPersonneRepository personneRepository;
+
     @BeforeEach
     void setUp() { MockitoAnnotations.openMocks(this); }
 
     @Test
     void findsAllDirectors() {
-        Realisateur director = director();
-        when(repository.findAll()).thenReturn(List.of(director));
-
+        when(repository.findAll()).thenReturn(List.of(director()));
         List<RealisateurDTO> result = service.findAll();
-
         assertEquals(1, result.size());
         assertEquals("John Doe", result.get(0).getIdentite());
+    }
+
+    @Test
+    void reusesExistingPersonWhenCreatingDirectorForExistingActorIdentity() {
+        Personne person = person();
+        when(personneRepository.findByNconst("nm0000001")).thenReturn(Optional.of(person));
+        when(repository.save(any(Realisateur.class))).thenAnswer(invocation -> {
+            Realisateur director = invocation.getArgument(0);
+            director.setId(person.getId());
+            return director;
+        });
+
+        RealisateurDTO dto = new RealisateurDTO();
+        dto.setIdentite("Submitted Name");
+        dto.setIdImdb("nm0000001");
+
+        RealisateurDTO result = service.save(dto);
+
+        assertEquals("John Doe", result.getIdentite());
+        verify(personneRepository, never()).save(any(Personne.class));
     }
 
     @Test
@@ -56,6 +77,7 @@ class RealisateurServiceTest {
         RealisateurDTO result = service.update(dto);
 
         assertEquals("Updated Name", result.getIdentite());
+        assertSame(director.getPersonne(), director.getPersonne());
         assertEquals("nm0000001", director.getPersonne().getNconst());
         assertEquals("Lyon", director.getPersonne().getLieuNaissance());
         verify(repository).save(director);
@@ -93,12 +115,16 @@ class RealisateurServiceTest {
     }
 
     private Realisateur director() {
+        Realisateur director = new Realisateur();
+        director.setId(1L);
+        director.setPersonne(person());
+        return director;
+    }
+
+    private Personne person() {
         Personne person = new Personne("John Doe", "1990-01-01", "Paris, France", "https://example.com/profile");
         person.setId(1L);
         person.setNconst("nm0000001");
-        Realisateur director = new Realisateur();
-        director.setId(1L);
-        director.setPersonne(person);
-        return director;
+        return person;
     }
 }

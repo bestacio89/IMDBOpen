@@ -1,108 +1,78 @@
 package service;
 
-
-
 import entities.business.personne.Acteur;
 import entities.business.personne.Personne;
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidDataException;
-
 import web.model.dto.ActeurDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import persistence.repository.IActeurRepository;
 import persistence.repository.IPersonneRepository;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ActeurService {
-
     private final IActeurRepository acteurRepository;
     private final IPersonneRepository personneRepository;
 
-    @Autowired
     public ActeurService(IActeurRepository acteurRepository, IPersonneRepository personneRepository) {
         this.acteurRepository = acteurRepository;
         this.personneRepository = personneRepository;
     }
 
-    // Convert Entity to DTO
-    private ActeurDTO convertToDTO(Acteur acteur) {
-        return ActeurDTO.fromEntity(acteur);
-    }
-
-    // Convert DTO to Entity
-    private Acteur convertToEntity(ActeurDTO acteurDTO) {
-        return acteurDTO.toEntity();
-    }
-
-    // Method to create a new acteur along with Personne
     @Transactional
-    public ActeurDTO createActeur(ActeurDTO acteurDTO) {
-        if (acteurDTO == null || acteurDTO.getPersonne() == null) {
+    public ActeurDTO createActeur(ActeurDTO dto) {
+        if (dto == null || dto.getPersonne() == null) {
             throw new InvalidDataException("Invalid acteur or personne data");
         }
-
-        // Validate date of birth
-        if (!acteurDTO.isValidDateNaissance()) {
+        if (!dto.isValidDateNaissance()) {
             throw new InvalidDataException("Invalid date of birth format");
         }
-
-        // Check if Personne exists based on identite
-        Optional<Personne> existingPersonneOpt = personneRepository.findByIdentite(acteurDTO.getPersonne().getIdentite());
-        Personne personne;
-
-        if (existingPersonneOpt.isPresent()) {
-            // Personne already exists
-            personne = existingPersonneOpt.get();
-        } else {
-            // Create new Personne entity
-            personne = acteurDTO.getPersonne().toEntity();
-            personneRepository.save(personne);
+        if (dto.getIdImdb() == null || dto.getIdImdb().isBlank()) {
+            throw new InvalidDataException("Actor IMDb identifier is required");
         }
 
-        // Create Acteur entity and associate with Personne
-        Acteur acteur = acteurDTO.toEntity();
-        acteur.setPersonne(personne); // Set the associated Personne
-        acteurRepository.save(acteur);
+        Personne person = personneRepository.findByNconst(dto.getIdImdb())
+                .orElseGet(() -> {
+                    Personne candidate = dto.getPersonne().toEntity();
+                    candidate.setNconst(dto.getIdImdb());
+                    return personneRepository.save(candidate);
+                });
 
-        return ActeurDTO.fromEntity(acteur);
+        Acteur actor = dto.toEntity();
+        actor.setPersonne(person);
+        Acteur saved = acteurRepository.save(actor);
+        return ActeurDTO.fromEntity(saved);
     }
 
-    // Method to update an existing acteur
     @Transactional
-    public ActeurDTO updateActeur(Long id, ActeurDTO acteurDTO) {
-        Optional<Acteur> existingActeurOpt = acteurRepository.findById(id);
-        if (!existingActeurOpt.isPresent()) {
-            throw new EntityNotFoundException("Acteur not found with id: " + id);
-        }
+    public ActeurDTO updateActeur(Long id, ActeurDTO dto) {
+        if (dto == null) throw new InvalidDataException("Actor data cannot be null");
+        Acteur existing = acteurRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Acteur not found with id: " + id));
 
-        // Validate date of birth
-        if (acteurDTO.getPersonne() != null && !acteurDTO.isValidDateNaissance()) {
+        if (dto.getPersonne() != null && !dto.isValidDateNaissance()) {
             throw new InvalidDataException("Invalid date of birth format");
         }
 
-        Acteur existingActeur = existingActeurOpt.get();
-        existingActeur.setTaille(acteurDTO.getTaille());
-        existingActeur.setIdImdb(acteurDTO.getIdImdb());
-
-        // Update Personne if required
-        if (acteurDTO.getPersonne() != null) {
-            Personne updatedPersonne = acteurDTO.getPersonne().toEntity();
-            existingActeur.setPersonne(updatedPersonne);
+        if (dto.getTaille() != null) existing.setTaille(dto.getTaille());
+        if (dto.getIdImdb() != null && !dto.getIdImdb().isBlank()) {
+            existing.setIdImdb(dto.getIdImdb());
         }
 
-        acteurRepository.save(existingActeur);
-        return ActeurDTO.fromEntity(existingActeur);
+        if (dto.getPersonne() != null) {
+            Personne person = existing.getPersonne();
+            person.setIdentite(dto.getPersonne().getIdentite());
+            person.setDateNaissance(dto.getPersonne().getDateNaissance());
+            person.setLieuNaissance(dto.getPersonne().getLieuNaissance());
+            person.setUrl(dto.getPersonne().getUrl());
+        }
+
+        return ActeurDTO.fromEntity(acteurRepository.save(existing));
     }
 
-    // Method to delete an acteur
     @Transactional
     public void deleteActeur(Long id) {
         if (!acteurRepository.existsById(id)) {
@@ -110,17 +80,4 @@ public class ActeurService {
         }
         acteurRepository.deleteById(id);
     }
-
-    // Method to search and sort acteurs
-  /*  public List<ActeurDTO> findActeursWithFiltersAndSorting(String identite, String dateNaissance, String sortBy) {
-        // Build sort object
-        Sort sort = Sort.by(Sort.Direction.ASC, sortBy != null ? sortBy : "id");
-
-        // Search and filter by identite and dateNaissance
-        List<Acteur> acteurs = acteurRepository.findAllWithFilters(identite, dateNaissance, PageRequest.of(0, Integer.MAX_VALUE, sort));
-
-        return acteurs.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }*/
 }

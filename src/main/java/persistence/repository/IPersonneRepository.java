@@ -11,6 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface IPersonneRepository extends JpaRepository<Personne, Long> {
+    Optional<Personne> findByNconst(String nconst);
+
     @Query("SELECT p FROM Personne p WHERE p.name = :nom")
     Optional<Personne> findByIdentite(@Param("nom") String nom);
 
