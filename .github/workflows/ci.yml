@@ -1,0 +1,64 @@
+name: Java CI
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and test (Java 21)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Verify Maven Wrapper
+        run: ./mvnw --version
+
+      - name: Build and test
+        run: ./mvnw --batch-mode --no-transfer-progress clean verify
+
+      - name: Upload test and quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-verification-reports
+          path: |
+            **/target/surefire-reports/**
+            **/target/failsafe-reports/**
+            **/target/checkstyle-result.xml
+            **/target/site/jacoco/**
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload application artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: imdbopen-application
+          path: target/*.jar
+          if-no-files-found: error
+          retention-days: 14
